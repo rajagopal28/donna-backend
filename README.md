@@ -1,5 +1,5 @@
 # Donna Backend API server
-To bring in contextual references with the existing system
+To bring in contextual references with the existing system at [Donna](http://github.com/rajagopal28/Donna)
 ## tech stack
 - python - Flask, SQLAlchemy
 - SQLite
@@ -24,7 +24,10 @@ To bring in contextual references with the existing system
 ### running server
 - `` python run-local.py ``
 
+### running integration tests
+- `` python user_tests.py ``
+
 ### end points information
 - GET /api/users  - to list all active users
 - POST /api/users {firstName: .., lastName: .., username:.., password: .., location: ..} - to add a new user
-- GET /api/users/<user-id> - to get detail of given user-id
+- GET /api/users/:user-id - to get detail of given user-id
