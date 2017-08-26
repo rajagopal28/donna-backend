@@ -17,4 +17,5 @@ db.session.commit()
 
 if __name__ == '__main__':
     print('Hanyasiyooo')
-    myapp.run()
+    port = int(os.environ.get('PORT', 8090))
+    myapp.run(host='0.0.0.0', port=port) #Start listening

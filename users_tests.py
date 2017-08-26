@@ -29,13 +29,13 @@ class UserManagerTests(unittest.TestCase):
     def test_home_status_code(self):
         # sends HTTP GET request to the application
         # on the specified path
-        result = self.myapp.get('/')
+        result = self.app.get('/')
         # assert the status code of the response
         self.assertEqual(result.status_code, 200)
-        self.assertEqual(result.data, 'Welcome to office management system')
+        self.assertEqual(result.data, b'Welcome to office management system')
 
     def test_all_users_for_empty_response(self):
-        result = self.myapp.get('/api/users')
+        result = self.app.get('/api/users')
         dict_val = json.loads(result.data)
         self.assertEqual(result.status_code, 200)
         self.assertEqual(len(dict_val["items"]), 0)
@@ -48,7 +48,7 @@ class UserManagerTests(unittest.TestCase):
     #     db.session.add(alert2)
     #     db.session.commit()
     #
-    #     result = self.myapp.get('/api/alerts')
+    #     result = self.app.get('/api/alerts')
     #     dict_val = json.loads(result.data)
     #
     #     self.assertEqual(result.status_code, 200)
@@ -58,7 +58,7 @@ class UserManagerTests(unittest.TestCase):
     #     self.assertEqual(dict_val["success"], True)
     #
     # def test_create_alert_when_giving_valid_input(self):
-    #     result = self.myapp.put('/api/alerts',
+    #     result = self.app.put('/api/alerts',
     #                           data={'reference_id': 'reference_id_3', 'delay': 1, 'description': 'description 3'})
     #     time.sleep(3)
     #     dict_val = json.loads(result.data)
@@ -66,7 +66,7 @@ class UserManagerTests(unittest.TestCase):
     #     self.assertEqual(dict_val['success'], True)
     #
     # def test_create_alert_when_giving_missing_input(self):
-    #     result = self.myapp.put('/api/alerts',
+    #     result = self.app.put('/api/alerts',
     #                           data={'reference_id': 'reference_id_4', 'description': 'description 4'})
     #     time.sleep(2)
     #     self.assertEqual(result.status_code, 400)
@@ -78,7 +78,7 @@ class UserManagerTests(unittest.TestCase):
     #     alert1 = Alert(description="description 1", reference_id="reference_1", delay=10, status="STARTED")
     #     db.session.add(alert1)
     #     db.session.commit()
-    #     result = self.myapp.put('/api/alerts',
+    #     result = self.app.put('/api/alerts',
     #                           data={'reference_id': 'reference_1', 'delay': 1, 'description': 'description 1'})
     #     time.sleep(2)
     #     self.assertEqual(result.status_code, 400)
@@ -90,7 +90,7 @@ class UserManagerTests(unittest.TestCase):
     #     alert1 = Alert(description="description 1", reference_id="reference_1", delay=10, status="STARTED")
     #     db.session.add(alert1)
     #     db.session.commit()
-    #     result = self.myapp.post('/api/alerts/reference_1')
+    #     result = self.app.post('/api/alerts/reference_1')
     #
     #     actual_alert = Alert.query.filter_by(reference_id='reference_1').first()
     #
@@ -103,7 +103,7 @@ class UserManagerTests(unittest.TestCase):
     #     alert1 = Alert(description="description 2", reference_id="reference_2", delay=10, status="PENDING")
     #     db.session.add(alert1)
     #     db.session.commit()
-    #     result = self.myapp.post('/api/alerts/reference_2')
+    #     result = self.app.post('/api/alerts/reference_2')
     #
     #     actual_alert = Alert.query.filter_by(reference_id='reference_2').first()
     #
@@ -114,17 +114,17 @@ class UserManagerTests(unittest.TestCase):
     #
     # def test_clear_alert_rejects_when_giving_invalid_reference_id(self):
     #
-    #     result = self.myapp.post('/api/alerts/reference_1')
+    #     result = self.app.post('/api/alerts/reference_1')
     #     self.assertEqual(result.status_code, 400)
     #     dict_val = json.loads(result.data)
     #     self.assertEqual(dict_val['success'], False)
     #     self.assertEqual(dict_val['message'], 'Invalid reference id')
     #
     # def test_clear_alert_when_the_alert_is_still_in_delay_period(self):
-    #     self.myapp.put('/api/alerts',
+    #     self.app.put('/api/alerts',
     #                  data={'reference_id': 'reference_id_5', 'description': 'description 5', 'delay': 5})
     #     time.sleep(2)
-    #     result = self.myapp.post('/api/alerts/reference_id_5')
+    #     result = self.app.post('/api/alerts/reference_id_5')
     #     self.assertEqual(result.status_code, 201)
     #     dict_val = json.loads(result.data)
     #     self.assertEqual(dict_val['success'], True)
