@@ -51,4 +51,7 @@ def campus():
 
 @myapp.route('/api/login', methods=['POST'])
 def authenticate_user():
-    pass
+    uname = request.form.get('username', None)
+    passwd = request.form.get('password', None)
+    user = User.query.filter_by(username=uname, password=passwd).first()
+    return jsonify(success=True, item=user.to_dict())
