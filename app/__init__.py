@@ -10,7 +10,7 @@ myapp.config.from_pyfile('config.py')
 db = SQLAlchemy(myapp)
 
 import app.views.users
-print('Creating tables...')
+print('Creating tables...Part 2')
 db.create_all()
 db.session.commit()
 
