@@ -11,6 +11,7 @@ class UserManagerTests(unittest.TestCase):
     def setUp(self):
         self.temp_db_file = tempfile.NamedTemporaryFile(suffix=".db", delete=True)
         print (self.temp_db_file.name) # .replace('RMUTHU~1', 'rmuthuchidambara')
+        self.user_db = myapp.config['SQLALCHEMY_DATABASE_URI']
         myapp.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + self.temp_db_file.name
         myapp.config['TESTING'] = True
         self.app = myapp.test_client()
@@ -25,6 +26,7 @@ class UserManagerTests(unittest.TestCase):
         if db:
             db.session.remove()
             db.drop_all()
+        myapp.config['SQLALCHEMY_DATABASE_URI'] = self.user_db
 
     def test_home_status_code(self):
         # sends HTTP GET request to the application
