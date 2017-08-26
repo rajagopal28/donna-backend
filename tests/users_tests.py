@@ -10,7 +10,7 @@ class UserManagerTests(unittest.TestCase):
     @classmethod
     def setUp(self):
         self.temp_db_file = tempfile.NamedTemporaryFile(suffix=".db", delete=True)
-        print (self.temp_db_file.name)
+        print (self.temp_db_file.name) # .replace('RMUTHU~1', 'rmuthuchidambara')
         myapp.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + self.temp_db_file.name
         myapp.config['TESTING'] = True
         self.app = myapp.test_client()
