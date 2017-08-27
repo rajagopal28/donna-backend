@@ -2,7 +2,7 @@ import json
 from tests.base_test import BaseTest
 import unittest
 import tempfile
-from app.models.office import User, Campus
+from app.models.office import User, Campus, Location
 import time
 
 
@@ -23,6 +23,25 @@ class UserManagerTests(BaseTest):
         self.assertEqual(len(dict_val["items"]), 0)
         self.assertEqual(dict_val["success"], True)
 
+    def test_all_locations_without_campus_for_response_with_inserted_data_with_status_started(self):
+        l1 = Location(latitude=12.32434, longitude=56.4324)
+        l2 = Location(latitude=15.32434, longitude=57.4324)
+        self.test_db.session.add(l1)
+        self.test_db.session.add(l2)
+        self.test_db.session.commit()
+
+        result = self.app.get('/api/locations')
+        dict_val = json.loads(result.data)
+
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(len(dict_val["items"]), 2)
+        self.assertEqual(dict_val["items"][0]["latitude"], l1.latitude)
+        self.assertIsNone(dict_val["items"][0]["campus"])
+        self.assertEqual(dict_val["items"][1]["longitude"], l2.longitude)
+        self.assertIsNone(dict_val["items"][1]["campus"])
+        self.assertEqual(dict_val["success"], True)
+
+
     def test_all_campus_for_response_with_inserted_data_with_status_started(self):
         c1 = Campus(latitude=12.32434, longitude=56.4324, name='Some Campus1')
         c2 = Campus(latitude=15.32434, longitude=57.4324, name='Some Campus2')
@@ -37,6 +56,25 @@ class UserManagerTests(BaseTest):
         self.assertEqual(len(dict_val["items"]), 2)
         self.assertEqual(dict_val["items"][0]["name"], c1.name)
         self.assertEqual(dict_val["items"][1]["name"], c2.name)
+        self.assertEqual(dict_val["success"], True)
+
+    def test_all_locations_with_campus_for_response_with_inserted_data_with_status_started(self):
+        c1 = Campus(latitude=12.32434, longitude=56.4324, name='Some Campus1')
+        self.test_db.session.add(c1)
+        self.test_db.session.commit()
+
+        i_c1 = Campus.query.filter_by(latitude=c1.latitude, longitude=c1.longitude, name=c1.name).first()
+
+        l1 = Location(latitude=12.32434, longitude=56.4324, campus_id=i_c1.id)
+        self.test_db.session.add(l1)
+        result = self.app.get('/api/locations')
+        dict_val = json.loads(result.data)
+
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(len(dict_val["items"]), 1)
+        self.assertEqual(dict_val["items"][0]["latitude"], l1.latitude)
+        self.assertIsNotNone(dict_val["items"][0]["campus"])
+        self.assertEqual(dict_val["items"][0]["campus"]["name"], c1.name)
         self.assertEqual(dict_val["success"], True)
 
     # def test_create_alert_when_giving_valid_input(self):

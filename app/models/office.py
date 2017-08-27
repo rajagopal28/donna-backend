@@ -36,7 +36,7 @@ class User(db.Model):
             'first_name': self.first_name,
             'last_name': self.last_name,
             'username': self.username,
-            'location' : self.location.to_dict(),
+            'location' : self.location.to_dict() if self.location else None,
             'created_ts': self.created_ts,
             'lastupdated_ts': self.lastupdated_ts
         }
@@ -69,7 +69,7 @@ class Location(db.Model):
             'latitude': self.latitude,
             'longitude': self.longitude,
             'campus_id': self.campus_id,
-            'campus' : self.campus.to_dict()
+            'campus' : self.campus.to_dict() if self.campus else None
         }
 
     def __repr__(self):
