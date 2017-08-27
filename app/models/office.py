@@ -98,7 +98,7 @@ class Campus(db.Model):
             'id' : self.id,
             'name': self.name,
             'latitude': self.latitude,
-            'longitude': self.latitude
+            'longitude': self.longitude
         }
 
     def __repr__(self):
