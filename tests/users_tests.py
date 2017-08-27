@@ -23,7 +23,7 @@ class UserManagerTests(BaseTest):
         self.assertEqual(len(dict_val["items"]), 0)
         self.assertEqual(dict_val["success"], True)
 
-    def test_all_users_without_location_for_response_with_inserted_data_with_status_started(self):
+    def test_all_users_without_location_for_response_with_inserted_data(self):
         u1 = User(first_name='user1', last_name='last1', username='uname1', password='password1')
         u2 = User(first_name='user2', last_name='last2', username='uname2', password='password2')
         self.test_db.session.add(u1)
@@ -41,7 +41,7 @@ class UserManagerTests(BaseTest):
         self.assertIsNone(dict_val["items"][1]["location"])
         self.assertEqual(dict_val["success"], True)
 
-    def test_all_users_with_location_without_campus_for_response_with_inserted_data_with_status_started(self):
+    def test_all_users_with_location_without_campus_for_response_with_inserted_data(self):
         l1 = Location(latitude=12.32434, longitude=56.4324)
         self.test_db.session.add(l1)
         self.test_db.session.commit()
@@ -61,7 +61,7 @@ class UserManagerTests(BaseTest):
         self.assertEqual(dict_val["items"][0]["location"]["latitude"], l1.latitude)
         self.assertEqual(dict_val["success"], True)
 
-    def test_all_users_with_location_with_campus_for_response_with_inserted_data_with_status_started(self):
+    def test_all_users_with_location_with_campus_for_response_with_inserted_data(self):
         c1 = Campus(latitude=12.32434, longitude=56.4324, name='Some Campus1')
         self.test_db.session.add(c1)
         self.test_db.session.commit()
@@ -90,7 +90,7 @@ class UserManagerTests(BaseTest):
         self.assertEqual(dict_val["success"], True)
 
 
-    def test_all_locations_without_campus_for_response_with_inserted_data_with_status_started(self):
+    def test_all_locations_without_campus_for_response_with_inserted_data(self):
         l1 = Location(latitude=12.32434, longitude=56.4324)
         l2 = Location(latitude=15.32434, longitude=57.4324)
         self.test_db.session.add(l1)
@@ -109,7 +109,7 @@ class UserManagerTests(BaseTest):
         self.assertEqual(dict_val["success"], True)
 
 
-    def test_all_campus_for_response_with_inserted_data_with_status_started(self):
+    def test_all_campus_for_response_with_inserted_data(self):
         c1 = Campus(latitude=12.32434, longitude=56.4324, name='Some Campus1')
         c2 = Campus(latitude=15.32434, longitude=57.4324, name='Some Campus2')
         self.test_db.session.add(c1)
@@ -125,7 +125,7 @@ class UserManagerTests(BaseTest):
         self.assertEqual(dict_val["items"][1]["name"], c2.name)
         self.assertEqual(dict_val["success"], True)
 
-    def test_all_locations_with_campus_for_response_with_inserted_data_with_status_started(self):
+    def test_all_locations_with_campus_for_response_with_inserted_data(self):
         c1 = Campus(latitude=12.32434, longitude=56.4324, name='Some Campus1')
         self.test_db.session.add(c1)
         self.test_db.session.commit()
