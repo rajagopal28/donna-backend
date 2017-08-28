@@ -37,8 +37,8 @@ class User(db.Model):
             'last_name': self.last_name,
             'username': self.username,
             'location' : self.location.to_dict() if self.location else None,
-            'created_ts': self.created_ts,
-            'lastupdated_ts': self.lastupdated_ts
+            'created_ts': self.created_ts.timestamp(),
+            'lastupdated_ts': self.lastupdated_ts.timestamp()
         }
 
     def __repr__(self):
