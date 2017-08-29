@@ -83,7 +83,7 @@ class Location(db.Model):
             'name' : self.name,
             'latitude': self.latitude,
             'longitude': self.longitude,
-            'campus_id': self.campus_id
+            'campusId': self.campus_id
         }
     def __repr__(self):
         return '<Location %r>' % (self.name)
