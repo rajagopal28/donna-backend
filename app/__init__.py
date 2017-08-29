@@ -11,6 +11,7 @@ db = SQLAlchemy(myapp)
 
 import app.views.users
 import app.views.locations
+import app.views.chores
 print('Creating tables...Part 2')
 db.create_all()
 db.session.commit()
