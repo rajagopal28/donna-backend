@@ -45,7 +45,7 @@ class User(db.Model):
             'lastName': self.last_name,
             'username': self.username,
             'password' : self.password,
-            'locationId': self.location_id
+            'locationId': self.location_id if self.location_id else 0
         }
 
     def __repr__(self):
@@ -58,12 +58,14 @@ class Location(db.Model):
     id = db.Column(Integer, primary_key=True)
     latitude = db.Column(Float)
     longitude = db.Column(Float)
+    name = db.Column(String(50))
     campus_id = Column(Integer, ForeignKey('campus.id'))
     campus = relationship("Campus", back_populates="locations")
 
-    def __init__(self, latitude=None, longitude=None, campus_id=None):
+    def __init__(self, latitude=None, longitude=None, name=None, campus_id=None):
         self.latitude = latitude
         self.longitude = longitude
+        self.name = name
         self.campus_id = campus_id
 
     def save(self):
@@ -71,16 +73,20 @@ class Location(db.Model):
         db.session.commit()
 
     def to_dict(self):
+        dict_val = self.to_plain_dict()
+        dict_val['campus'] =self.campus.to_dict() if self.campus else None
+        return dict_val
+
+    def to_plain_dict(self):
         return {
             'id' : self.id,
+            'name' : self.name,
             'latitude': self.latitude,
             'longitude': self.longitude,
-            'campus_id': self.campus_id,
-            'campus' : self.campus.to_dict() if self.campus else None
+            'campus_id': self.campus_id
         }
-
     def __repr__(self):
-        return '<Location %r, %r>' % (self.latitude, self.longitude)
+        return '<Location %r>' % (self.name)
 
 
 class Campus(db.Model):
