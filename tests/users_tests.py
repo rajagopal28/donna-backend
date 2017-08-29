@@ -4,7 +4,7 @@ import unittest
 import tempfile
 from app.models.office import User, Campus, Location
 import time
-
+from io import BytesIO
 
 class UserManagerTests(BaseTest):
 
@@ -35,9 +35,9 @@ class UserManagerTests(BaseTest):
 
         self.assertEqual(result.status_code, 200)
         self.assertEqual(len(dict_val["items"]), 2)
-        self.assertEqual(dict_val["items"][0]["first_name"], u1.first_name)
+        self.assertEqual(dict_val["items"][0]["firstName"], u1.first_name)
         self.assertIsNone(dict_val["items"][0]["location"])
-        self.assertEqual(dict_val["items"][1]["last_name"], u2.last_name)
+        self.assertEqual(dict_val["items"][1]["lastName"], u2.last_name)
         self.assertIsNone(dict_val["items"][1]["location"])
         self.assertEqual(dict_val["success"], True)
 
@@ -56,7 +56,7 @@ class UserManagerTests(BaseTest):
 
         self.assertEqual(result.status_code, 200)
         self.assertEqual(len(dict_val["items"]), 1)
-        self.assertEqual(dict_val["items"][0]["first_name"], u1.first_name)
+        self.assertEqual(dict_val["items"][0]["firstName"], u1.first_name)
         self.assertIsNotNone(dict_val["items"][0]["location"])
         self.assertEqual(dict_val["items"][0]["location"]["latitude"], l1.latitude)
         self.assertEqual(dict_val["success"], True)
@@ -82,7 +82,7 @@ class UserManagerTests(BaseTest):
 
         self.assertEqual(result.status_code, 200)
         self.assertEqual(len(dict_val["items"]), 1)
-        self.assertEqual(dict_val["items"][0]["first_name"], u1.first_name)
+        self.assertEqual(dict_val["items"][0]["firstName"], u1.first_name)
         self.assertIsNotNone(dict_val["items"][0]["location"])
         self.assertEqual(dict_val["items"][0]["location"]["latitude"], l1.latitude)
         self.assertIsNotNone(dict_val["items"][0]["location"]["campus"])
@@ -145,14 +145,22 @@ class UserManagerTests(BaseTest):
         self.assertEqual(dict_val["items"][0]["campus"]["name"], c1.name)
         self.assertEqual(dict_val["success"], True)
 
-    # def test_create_alert_when_giving_valid_input(self):
-    #     result = self.app.put('/api/alerts',
-    #                           data={'reference_id': 'reference_id_3', 'delay': 1, 'description': 'description 3'})
-    #     time.sleep(3)
-    #     dict_val = json.loads(result.data)
-    #     self.assertEqual(result.status_code, 201)
-    #     self.assertEqual(dict_val['success'], True)
-    #
+    def test_upload_users_through_endpoint(self):
+        file_content = b'[{"id": 1, "firstName": "User1", "lastName": "Last1", "username": "userlast1", "password": "pass1"}]'
+        data = {}
+        data['users'] = (BytesIO(file_content), 'users.json')
+        result = self.app.post('/api/users/upload',
+                            buffered=True,
+                            content_type='multipart/form-data',data=data)
+        dict_val = json.loads(result.data)
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(dict_val['success'], True)
+        self.assertEqual(dict_val['count'], 1)
+        users = User.query.all()
+        self.assertEqual(len(users), 1)
+        self.assertEqual(users[0].first_name, 'User1')
+        self.assertEqual(users[0].last_name, 'Last1')
+
     # def test_create_alert_when_giving_missing_input(self):
     #     result = self.app.put('/api/alerts',
     #                           data={'reference_id': 'reference_id_4', 'description': 'description 4'})

@@ -68,7 +68,7 @@ def upload_users():
         last_name = user["lastName"]
         username = user["username"]
         password = user["password"]
-        location_id = user["locationId"]
+        location_id =  user["locationId"]  if "locationId" in user else None
         new_user = User(first_name=first_name, last_name=last_name, username=username, password=password, location_id=location_id)
         new_user.save()
         # print(new_user)
