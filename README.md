@@ -25,7 +25,7 @@ To bring in contextual references with the existing system at [Donna](http://git
 - `` python run-local.py ``
 
 ### running integration tests
-- `` python user_tests.py ``
+- `` python run-tests.py ``
 
 ### end points information
 - GET /api/users  - to list all active users
