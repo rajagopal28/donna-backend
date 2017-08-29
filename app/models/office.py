@@ -31,14 +31,21 @@ class User(db.Model):
         db.session.commit()
 
     def to_dict(self):
-        return {
+        dict_val = self.to_plain_dict()
+        if 'password' in dict_val: del dict_val['password']
+        dict_val["location"] = self.location.to_dict() if self.location else None
+        dict_val["created_ts"] = self.created_ts.timestamp()
+        dict_val["lastupdated_ts"] = self.lastupdated_ts.timestamp()
+        return dict_val
+
+    def to_plain_dict(self):
+         return {
             'id' : self.id,
-            'first_name': self.first_name,
-            'last_name': self.last_name,
+            'firstName': self.first_name,
+            'lastName': self.last_name,
             'username': self.username,
-            'location' : self.location.to_dict() if self.location else None,
-            'created_ts': self.created_ts.timestamp(),
-            'lastupdated_ts': self.lastupdated_ts.timestamp()
+            'password' : self.password,
+            'locationId': self.location_id
         }
 
     def __repr__(self):
