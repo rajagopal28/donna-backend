@@ -1,7 +1,5 @@
 from flask import jsonify, request,  Response, json
-from ast import literal_eval
 
-from app.models.office import User, Campus, Location
 from app import myapp
 from app.services.location_services import validate_and_add_location, fetch_all_locations, validate_and_add_campus, fetch_all_campus, validate_and_upload_locations, validate_and_upload_campus
 
@@ -10,14 +8,15 @@ def locations():
     if request.method == 'POST':
         return validate_and_add_location(request.form)
     else:
-        return jsonify(success=True, items=fetch_all_locations())
+        return jsonify(success=True, items=fetch_all_locations(is_plain_dict=False))
 
 @myapp.route('/api/campus', methods = ['GET', 'POST'])
 def campus():
     if request.method == 'POST':
         return validate_and_add_campus(request.form)
     else:
-        return fetch_all_campus()
+        campus = fetch_all_campus()
+        return jsonify(success=True, items=campus)
 
 
 @myapp.route('/api/locations/upload', methods=['POST'])
@@ -30,8 +29,7 @@ def upload_locations():
 
 @myapp.route('/api/locations/download', methods=['GET'])
 def download_locations():
-    locations = Location.query.all()
-    resp = [location.to_plain_dict() for location in locations]
+    resp = fetch_all_locations(is_plain_dict=True)
     return Response(
         str(resp),
         mimetype="application/json",
@@ -48,8 +46,7 @@ def upload_campus():
 
 @myapp.route('/api/campus/download', methods=['GET'])
 def download_campus():
-    campus = Campus.query.all()
-    resp = [campu.to_dict() for campu in campus]
+    resp = fetch_all_campus()
     return Response(
         str(resp),
         mimetype="application/json",

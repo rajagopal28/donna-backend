@@ -11,10 +11,9 @@ def validate_and_add_location(form):
         return jsonify(success=False, message='Missing required fields!')
 
 
-def fetch_all_locations():
+def fetch_all_locations(is_plain_dict):
     locations = Location.query.all()
-    response = [loc.to_dict() for loc in locations]
-    return response
+    return [loc.to_plain_dict() if is_plain_dict else loc.to_dict() for loc in locations]
 
 
 def validate_and_add_campus(form):
@@ -26,8 +25,7 @@ def validate_and_add_campus(form):
 
 def fetch_all_campus():
     campuses = Campus.query.all()
-    response = [campus.to_dict() for campus in campuses]
-    return jsonify(items=response, success=True)
+    return [campus.to_dict() for campus in campuses]
 
 def validate_and_upload_locations(ustr, reset):
     locations = literal_eval(ustr.decode().replace("'", '"'))
@@ -47,7 +45,7 @@ def validate_and_save_location(form, skip_campus):
     name = form.get('name', None)
     campus = form.get('campusId', None)
     if latitude and longitude and name :
-        if not skip_campus and not campus:
+        if (not skip_campus) and (not campus):
             return False, None
         else:
             new_loc = Location(name=name, latitude=latitude, longitude=longitude, campus_id=campus)
