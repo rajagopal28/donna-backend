@@ -61,15 +61,14 @@ def upload_users():
     # datetime.fromtimestamp(your_timestamp / 1e3)
     ustr = request.files['users'].read()
     users = literal_eval(ustr.decode().replace("'", '"'))
-    print(type(users))
     if request.args.get('reset', False) :
         User.query.delete()
     for user in users:
-        first_name = user["first_name"]
-        last_name = user["last_name"]
+        first_name = user["firstName"]
+        last_name = user["lastName"]
         username = user["username"]
-        password = 'BigBagBoogy'
-        location_id = user["location"]["id"]
+        password = user["password"]
+        location_id = user["locationId"]
         new_user = User(first_name=first_name, last_name=last_name, username=username, password=password, location_id=location_id)
         new_user.save()
         # print(new_user)
@@ -78,7 +77,7 @@ def upload_users():
 @myapp.route('/api/users/download', methods=['GET'])
 def download_users():
     users = User.query.all()
-    resp = [user.to_dict() for user in users]
+    resp = [user.to_plain_dict() for user in users]
     return Response(
         str(resp),
         mimetype="application/json",
