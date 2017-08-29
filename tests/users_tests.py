@@ -161,14 +161,21 @@ class UserManagerTests(BaseTest):
         self.assertEqual(users[0].first_name, 'User1')
         self.assertEqual(users[0].last_name, 'Last1')
 
-    # def test_create_alert_when_giving_missing_input(self):
-    #     result = self.app.put('/api/alerts',
-    #                           data={'reference_id': 'reference_id_4', 'description': 'description 4'})
-    #     time.sleep(2)
-    #     self.assertEqual(result.status_code, 400)
-    #     dict_val = json.loads(result.data)
-    #     self.assertEqual(dict_val['success'], False)
-    #     self.assertEqual(dict_val['message'], 'Invalid/Empty fields')
+
+    def test_download_users_through_endpoint(self):
+        new_user = User(first_name='User2', last_name='Last2', username='uname2', password='pass2')
+        new_user.save()
+        result = self.app.get('/api/users/download')
+        content = b''
+        for i in result.response:
+            content = content + i
+        dict_items = json.loads(content.decode().replace("'", '"'))
+        # dict_val = json.loads(result.data)
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(result.mimetype, 'application/json')
+        self.assertEqual(len(dict_items), 1)
+        self.assertEqual(dict_items[0]['firstName'], 'User2')
+        self.assertEqual(dict_items[0]['lastName'], 'Last2')
     #
     # def test_create_alert_when_giving_existing_reference_id(self):
     #     alert1 = Alert(description="description 1", reference_id="reference_1", delay=10, status="STARTED")
