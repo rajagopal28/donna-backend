@@ -43,6 +43,7 @@ class EventParticipant(db.Model):
     event_id = db.Column(Integer, ForeignKey('events.id'))
     participant_id = db.Column(Integer, ForeignKey('users.id'))
     event = relationship("Event", back_populates="event_participants")
+    participant = relationship("User")
 
     def __init__(self, event_id=None, participant_id=None):
         self.event_id = event_id
@@ -57,7 +58,8 @@ class EventParticipant(db.Model):
             'id' : self.id,
             'eventId': self.event_id,
             'participantId': self.participant_id,
-            'event': self.event.to_dict if recurse else None
+            'participant': self.participant.to_dict(),
+            'event': self.event.to_dict() if recurse else None
         }
 
     def __repr__(self):
