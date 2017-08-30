@@ -29,9 +29,9 @@ class Event(db.Model):
             'id' : self.id,
             'title': self.title,
             'description': self.description,
-            'eventStart': self.event_start.timestamp(),
-            'eventEnd': self.event_end.timestamp(),
-            'participants': self.event_participants
+            'eventStart': self.event_start.timestamp()*1e3,
+            'eventEnd': self.event_end.timestamp()*1e3,
+            'participants': [ep.to_dict(recurse=False) for ep in self.event_participants]
         }
 
     def __repr__(self):
@@ -52,12 +52,12 @@ class EventParticipant(db.Model):
         db.session.add(self)
         db.session.commit()
 
-    def to_dict(self):
+    def to_dict(self, recurse=True):
         return {
             'id' : self.id,
             'eventId': self.event_id,
             'participantId': self.participant_id,
-            'event': self.event.to_dict()
+            'event': self.event.to_dict if recurse else None
         }
 
     def __repr__(self):
@@ -93,9 +93,9 @@ class Announcement(db.Model):
             'title': self.title,
             'description': self.description,
             'category': self.category,
-            'validFrom': self.valid_from.timestamp(),
-            'validTill' : self.valid_till.timestamp(),
-            'createdTS' : self.created_ts.timestamp()
+            'validFrom': self.valid_from.timestamp()*1e3,
+            'validTill' : self.valid_till.timestamp()*1e3,
+            'createdTS' : self.created_ts.timestamp()*1e3
         }
 
     def __repr__(self):
