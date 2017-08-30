@@ -14,6 +14,13 @@ def fetch_all_users(is_plain_dict):
     users = User.query.all()
     return [user.to_plain_dict() if is_plain_dict else user.to_dict() for user in users]
 
+def fetch_user_with(id=None):
+    user = User.query.filter_by(id=id).first()
+    if user:
+        return jsonify(item=user.to_dict(), success=True), 200
+    else:
+        return jsonify(message='Requested Record Not Available!', success=False), 404
+
 def validate_input_and_authenticate(form):
     uname = form.get('username', None)
     passwd = form.get('password', None)

@@ -1,7 +1,7 @@
 from flask import jsonify, request,  Response, json
 from app import myapp
 
-from app.services.user_services import validate_and_add_user, fetch_all_users, validate_input_and_authenticate, validate_and_upload_users
+from app.services.user_services import validate_and_add_user, fetch_all_users, validate_input_and_authenticate, validate_and_upload_users,fetch_user_with
 
 @myapp.route('/api/users', methods=['GET', 'POST'])
 def users():
@@ -10,6 +10,11 @@ def users():
     else:
         response = fetch_all_users(is_plain_dict=False)
         return jsonify(items=response, success=True)
+
+@myapp.route('/api/users/<user_id>', methods=['GET'])
+def user_with(user_id):
+    return fetch_user_with(id=user_id)
+
 
 @myapp.route('/api/users/login', methods=['POST'])
 def authenticate_user():

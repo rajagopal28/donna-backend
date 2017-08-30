@@ -215,5 +215,21 @@ class UserManagerTests(BaseTest):
         self.assertEqual(dict_items[0]['firstName'], 'User2')
         self.assertEqual(dict_items[0]['lastName'], 'Last2')
 
+    def test_find_user_with_valid_id(self):
+        new_user = User(first_name='User2', last_name='Last2', username='uname2', password='pass2')
+        new_user.save()
+        result = self.app.get('/api/users/%r'%(new_user.id))
+        dict_val = json.loads(result.data)
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(dict_val['success'], True)
+        self.assertEqual(dict_val['item']['firstName'], new_user.first_name)
+        self.assertEqual(dict_val['item']['username'], new_user.username)
+
+    def test_fail_for_user_with_invalid_id(self):
+        result = self.app.get('/api/users/12')
+        dict_val = json.loads(result.data)
+        self.assertEqual(result.status_code, 404)
+        self.assertEqual(dict_val['success'], False)
+        self.assertEqual(dict_val['message'], 'Requested Record Not Available!')
 if __name__ == '__main__':
     unittest.main()
