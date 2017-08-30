@@ -27,6 +27,21 @@ def fetch_all_campus():
     campuses = Campus.query.all()
     return [campus.to_dict() for campus in campuses]
 
+def fetch_location_with(id=None):
+    location = Location.query.filter_by(id=id).first()
+    if location:
+        return jsonify(item=location.to_dict(), success=True), 200
+    else:
+        return jsonify(message='Requested Record Not Available!', success=False), 404
+
+def fetch_campus_with(id=None):
+    campus = Campus.query.filter_by(id=id).first()
+    if campus:
+        return jsonify(item=campus.to_dict(), success=True), 200
+    else:
+        return jsonify(message='Requested Record Not Available!', success=False), 404
+
+
 def validate_and_upload_locations(ustr, reset):
     locations = literal_eval(ustr.decode().replace("'", '"'))
     if reset :

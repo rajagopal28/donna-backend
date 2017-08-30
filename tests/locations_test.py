@@ -176,7 +176,7 @@ class LocationManagerTests(BaseTest):
 
 
     def test_download_campus_through_endpoint(self):
-        new_loc = Campus(name='loc2',latitude=62.64654, longitude=63.54465 )
+        new_loc = Campus(name='Camp2',latitude=62.64654, longitude=63.54465 )
         new_loc.save()
         result = self.app.get('/api/campus/download')
         content = b''
@@ -187,7 +187,40 @@ class LocationManagerTests(BaseTest):
         self.assertEqual(result.status_code, 200)
         self.assertEqual(result.mimetype, 'application/json')
         self.assertEqual(len(dict_items), 1)
-        self.assertEqual(dict_items[0]['name'], 'loc2')
+        self.assertEqual(dict_items[0]['name'], new_loc.name)
 
+    def test_find_location_with_valid_id(self):
+        new_loc = Location(name='loc2',latitude=62.64654, longitude=63.54465)
+        new_loc.save()
+        result = self.app.get('/api/locations/%r'%(new_loc.id))
+        dict_val = json.loads(result.data)
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(dict_val['success'], True)
+        self.assertEqual(dict_val['item']['name'], new_loc.name)
+        self.assertEqual(dict_val['item']['latitude'], new_loc.latitude)
+
+    def test_fail_for_location_with_invalid_id(self):
+        result = self.app.get('/api/locations/12')
+        dict_val = json.loads(result.data)
+        self.assertEqual(result.status_code, 404)
+        self.assertEqual(dict_val['success'], False)
+        self.assertEqual(dict_val['message'], 'Requested Record Not Available!')
+
+    def test_find_campus_with_valid_id(self):
+        new_loc = Campus(name='Camp5',latitude=72.64654, longitude=33.54465)
+        new_loc.save()
+        result = self.app.get('/api/campus/%r'%(new_loc.id))
+        dict_val = json.loads(result.data)
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(dict_val['success'], True)
+        self.assertEqual(dict_val['item']['name'], new_loc.name)
+        self.assertEqual(dict_val['item']['latitude'], new_loc.latitude)
+
+    def test_fail_for_campus_with_invalid_id(self):
+        result = self.app.get('/api/campus/15')
+        dict_val = json.loads(result.data)
+        self.assertEqual(result.status_code, 404)
+        self.assertEqual(dict_val['success'], False)
+        self.assertEqual(dict_val['message'], 'Requested Record Not Available!')
 if __name__ == '__main__':
     unittest.main()
