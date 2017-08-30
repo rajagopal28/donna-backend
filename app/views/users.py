@@ -11,7 +11,7 @@ def users():
         response = fetch_all_users(is_plain_dict=False)
         return jsonify(items=response, success=True)
 
-@myapp.route('/api/login', methods=['POST'])
+@myapp.route('/api/users/login', methods=['POST'])
 def authenticate_user():
     return validate_input_and_authenticate(request.form)
 

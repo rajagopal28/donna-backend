@@ -12,13 +12,11 @@ db = SQLAlchemy(myapp)
 import app.views.users
 import app.views.locations
 import app.views.chores
-print('Creating tables...Part 2')
 db.create_all()
 db.session.commit()
 
 
 
 if __name__ == '__main__':
-    print('Hanyasiyooo')
     port = int(os.environ.get('PORT', 8090))
     myapp.run(host='0.0.0.0', port=port) #Start listening
