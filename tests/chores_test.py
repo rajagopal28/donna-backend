@@ -2,17 +2,18 @@ import json
 from tests.base_test import BaseTest
 import unittest
 from app.models.office import User
-from app.models.chores import Announcement
+from app.models.chores import Announcement, Event, EventParticipant
 import time
 from io import BytesIO
-import datetime
+from datetime import datetime, timedelta
 
 class ChoresManagerTests(BaseTest):
 
     def test_all_announcements_for_response_with_inserted_data(self):
-        now = datetime.datetime.now()
-        a1 = Announcement(title='Announcement1', description='Some desc 1', category='food', valid_from=now, valid_till=now)
-        a2 = Announcement(title='Announcement2', description='Some desc 2', category='emergency', valid_from=now, valid_till=now)
+        now = datetime.now()
+        later = now + timedelta(minutes=30)
+        a1 = Announcement(title='Announcement1', description='Some desc 1', category='food', valid_from=now, valid_till=later)
+        a2 = Announcement(title='Announcement2', description='Some desc 2', category='emergency', valid_from=now, valid_till=later)
 
         self.test_db.session.add(a1)
         self.test_db.session.add(a2)
@@ -24,17 +25,20 @@ class ChoresManagerTests(BaseTest):
         self.assertEqual(result.status_code, 200)
         self.assertEqual(len(dict_val["items"]), 2)
         self.assertEqual(dict_val["items"][0]["title"], a1.title)
+        self.assertEqual(dict_val["items"][1]["validFrom"], a1.valid_from.timestamp()*1e3)
         self.assertEqual(dict_val["items"][1]["title"], a2.title)
+        self.assertEqual(dict_val["items"][1]["validTill"], a2.valid_till.timestamp()*1e3)
         self.assertEqual(dict_val["success"], True)
 
     def test_add_announcement_with_valid_data(self):
-        now = datetime.datetime.now()
+        now = datetime.now()
+        later = (now + timedelta(hours=2))
         data = {
         'title' : 'Announcement3',
         'description' : 'Some announcements 3',
         'category' : 'food',
-        'validFrom' : now.timestamp(),
-        'validTo' : now.timestamp()
+        'validFrom' : now.timestamp()*1e3,
+        'validTill' : later.timestamp()*1e3
         }
         result = self.app.post('/api/announcements',data=data)
         self.assertEqual(result.status_code, 200)
@@ -43,8 +47,79 @@ class ChoresManagerTests(BaseTest):
         self.assertEqual(dict_val["item"]["validFrom"], data['validFrom'])
         self.assertEqual(dict_val["success"], True)
         announcements = Announcement.query.all()
-        self.assertEqual(announcements[0].valid_till, now)
+        self.assertEqual(len(announcements), 1)
+        self.assertEqual(announcements[0].valid_till, later)
         self.assertEqual(announcements[0].description, data['description'])
+
+    def test_all_events_for_response_with_inserted_data(self):
+        now = datetime.now()
+        e1 = Event(title='Event 1', description='Some desc 1', event_start=now, event_end=now)
+        e2 = Event(title='Event 2', description='Some desc 2', event_start=now, event_end=now)
+
+        self.test_db.session.add(e1)
+        self.test_db.session.add(e2)
+        self.test_db.session.commit()
+
+        result = self.app.get('/api/events')
+        dict_val = json.loads(result.data)
+
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(len(dict_val["items"]), 2)
+        self.assertEqual(dict_val["items"][0]["title"], e1.title)
+        self.assertEqual(dict_val["items"][1]["title"], e2.title)
+        self.assertEqual(dict_val["success"], True)
+
+    def test_add_event_with_valid_data_without_participants(self):
+        now = datetime.now()
+        later = (now + timedelta(hours=1))
+        data = {
+            'title' : 'Event 5',
+            'description' : 'Some event 5',
+            'eventStart' : now.timestamp()*1e3,
+            'eventEnd' : later.timestamp()*1e3
+        }
+        result = self.app.post('/api/events',data=data)
+        self.assertEqual(result.status_code, 200)
+        dict_val = json.loads(result.data)
+        self.assertEqual(dict_val["item"]["title"], data['title'])
+        self.assertEqual(dict_val["item"]["eventStart"], data['eventStart'])
+        self.assertEqual(dict_val["success"], True)
+        events = Event.query.all()
+        self.assertEqual(len(events), 1)
+        self.assertEqual(events[0].event_start, now)
+        self.assertEqual(events[0].description, data['description'])
+        self.assertEqual(events[0].event_end, later)
+
+    def test_add_event_with_valid_data_with_partially_valid_participants(self):
+        u1 = User(first_name='User1', last_name='Last3', username='uname13', password='sdfsdf')
+        self.test_db.session.add(u1)
+        self.test_db.session.commit()
+        u_id = u1.id
+        now = datetime.now()
+        later = (now + timedelta(hours=1))
+        data = {
+            'title' : 'Event 5',
+            'description' : 'Some event 5',
+            'eventStart' : now.timestamp()*1e3,
+            'eventEnd' : later.timestamp()*1e3,
+            'participants' : '%r,%r'%(u_id, 3)
+        }
+        result = self.app.post('/api/events',data=data)
+        self.assertEqual(result.status_code, 200)
+        dict_val = json.loads(result.data)
+        self.assertEqual(dict_val["item"]["title"], data['title'])
+        self.assertEqual(dict_val["item"]["eventStart"], data['eventStart'])
+        self.assertEqual(dict_val["success"], True)
+        events = Event.query.all()
+        self.assertEqual(len(events), 1)
+        self.assertEqual(events[0].event_start, now)
+        self.assertEqual(events[0].description, data['description'])
+        self.assertEqual(events[0].event_end, later)
+
+        event_participants = EventParticipant.query.filter_by(event_id=events[0].id).all()
+        self.assertEqual(len(event_participants), 1)
+        self.assertEqual(event_participants[0].participant_id, u_id)
+
 
 if __name__ == '__main__':
     unittest.main()
