@@ -6,9 +6,9 @@ from app.models.office import Location, Campus
 def validate_and_add_location(form):
     success, new_loc = validate_and_save_location(form, False)
     if success:
-        return jsonify(success=True, item=new_loc.to_dict())
+        return jsonify(success=True, item=new_loc.to_dict()), 200
     else:
-        return jsonify(success=False, message='Missing required fields!')
+        return jsonify(success=False, message='Missing required fields!'), 400
 
 
 def fetch_all_locations(is_plain_dict):
@@ -19,9 +19,9 @@ def fetch_all_locations(is_plain_dict):
 def validate_and_add_campus(form):
     success, new_campus = validate_and_save_campus(form)
     if success:
-        return jsonify(success=True, item=new_campus.to_dict())
+        return jsonify(success=True, item=new_campus.to_dict()), 200
     else:
-        return jsonify(success=False, message='Missing required fields!')
+        return jsonify(success=False, message='Missing required fields!'), 400
 
 def fetch_all_campus():
     campuses = Campus.query.all()

@@ -63,6 +63,41 @@ class LocationManagerTests(BaseTest):
         self.assertEqual(dict_val["items"][0]["campus"]["name"], c1.name)
         self.assertEqual(dict_val["success"], True)
 
+    def test_add_location_should_fail_invalid_data(self):
+        camp = Campus(name='Campus5', latitude=12.454, longitude=43.23234)
+        camp.save()
+        data = {
+            'name': 'Loc5',
+            'latitude': 34.111,
+            'campusId' : camp.id
+        }
+        result = self.app.post('/api/locations',data=data)
+        self.assertEqual(result.status_code, 400)
+        dict_val = json.loads(result.data)
+        self.assertEqual(dict_val["message"], 'Missing required fields!')
+        self.assertEqual(dict_val["success"], False)
+        locations = Location.query.all()
+        self.assertEqual(len(locations), 0)
+
+    def test_add_location_with_valid_data(self):
+        camp = Campus(name='Campus4', latitude=12.454, longitude=43.23234)
+        camp.save()
+        data = {
+            'name': 'Loc4',
+            'latitude': 34.111,
+            'longitude' : 43.233,
+            'campusId' : camp.id
+        }
+        result = self.app.post('/api/locations',data=data)
+        self.assertEqual(result.status_code, 200)
+        dict_val = json.loads(result.data)
+        self.assertEqual(dict_val["item"]["name"], data['name'])
+        self.assertEqual(dict_val["item"]["latitude"], data['latitude'])
+        self.assertEqual(dict_val["success"], True)
+        locations = Location.query.all()
+        self.assertEqual(len(locations), 1)
+        self.assertEqual(locations[0].longitude,  data['longitude'])
+
 
     def test_upload_locations_through_endpoint(self):
         file_content = b'[{"id": 1, "name": "loc1", "latitude": 62.64654, "longitude": 63.54465}]'
@@ -93,6 +128,35 @@ class LocationManagerTests(BaseTest):
         self.assertEqual(result.mimetype, 'application/json')
         self.assertEqual(len(dict_items), 1)
         self.assertEqual(dict_items[0]['name'], 'loc2')
+
+    def test_add_campus_should_fail_invalid_data(self):
+        data = {
+            'name': 'Campus6',
+            'latitude': 34.111
+        }
+        result = self.app.post('/api/campus',data=data)
+        self.assertEqual(result.status_code, 400)
+        dict_val = json.loads(result.data)
+        self.assertEqual(dict_val["message"], 'Missing required fields!')
+        self.assertEqual(dict_val["success"], False)
+        campus = Campus.query.all()
+        self.assertEqual(len(campus), 0)
+
+    def test_add_campus_with_valid_data(self):
+        data = {
+            'name': 'Campus8',
+            'latitude': 34.111,
+            'longitude' : 43.23
+        }
+        result = self.app.post('/api/campus',data=data)
+        self.assertEqual(result.status_code, 200)
+        dict_val = json.loads(result.data)
+        self.assertEqual(dict_val["item"]["name"], data['name'])
+        self.assertEqual(dict_val["item"]["latitude"], data['latitude'])
+        self.assertEqual(dict_val["success"], True)
+        campus = Campus.query.all()
+        self.assertEqual(len(campus), 1)
+        self.assertEqual(campus[0].longitude,  data['longitude'])
 
 
     def test_upload_campus_through_endpoint(self):
