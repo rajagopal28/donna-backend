@@ -55,13 +55,18 @@ def validate_and_add_participants(event_id, participant_ids):
     count = 0
     if len(participants) > 0:
         count = validate_and_add_parsed_participants(event_id=event_id, participants=participants)
-        print(count)
+        # print(count)
     return count
 
 def validate_and_add_parsed_participants(event_id, participants):
     participant_users = User.query.filter(User.id.in_(participants)).all()
-    print (len(participant_users))
+    # print (len(participant_users))
     for p_us in participant_users:
         event_part = EventParticipant(event_id=event_id, participant_id=p_us.id)
         event_part.save()
     return len(participant_users)
+
+def fetch_all_event_participants(event_id):
+    participants = EventParticipant.query.filter_by(event_id=event_id).all()
+    resp = [p.participant.to_dict() for p in participants]
+    return jsonify(success=True, items=resp), 200

@@ -120,6 +120,48 @@ class ChoresManagerTests(BaseTest):
         self.assertEqual(len(event_participants), 1)
         self.assertEqual(event_participants[0].participant_id, u_id)
 
+    def test_add_event_participants_for_response_with_inserted_data(self):
+        now = datetime.now()
+        e1 = Event(title='Event 1', description='Some desc 1', event_start=now, event_end=now)
+        u1 = User(first_name='User1', last_name='Last3', username='uname131', password='sdfsdf')
+
+        self.test_db.session.add(e1)
+        self.test_db.session.add(u1)
+        self.test_db.session.commit()
+        e_id = e1.id
+        data = {
+            'participants' : '%r,%r'%(e_id, 12)
+        }
+        result = self.app.post('/api/events/%r'%(e1.id), data=data)
+        dict_val = json.loads(result.data)
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(dict_val["item"],1)
+        self.assertEqual(dict_val["success"], True)
+        eps = EventParticipant.query.filter_by(event_id=e_id).all()
+        self.assertEqual(len(eps), 1)
+        self.assertEqual(eps[0].participant.username, 'uname131')
+
+    def test_all_event_participants_for_response_with_inserted_data(self):
+        now = datetime.now()
+        e1 = Event(title='Event 9s', description='Some desc 9', event_start=now, event_end=now)
+        u1 = User(first_name='User12', last_name='Last53', username='uname31', password='pas3232')
+        self.test_db.session.add(e1)
+        self.test_db.session.add(u1)
+        self.test_db.session.commit()
+        e_id = e1.id
+        u_id = u1.id
+
+        ep1 = EventParticipant(event_id=e_id, participant_id=u_id)
+        self.test_db.session.add(ep1)
+        self.test_db.session.commit()
+
+        result = self.app.get('/api/events/%r'%(e1.id))
+        dict_val = json.loads(result.data)
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(len(dict_val["items"]),1)
+        self.assertEqual(dict_val["success"], True)
+        self.assertEqual(dict_val["items"][0]["firstName"], u1.first_name)
+        self.assertEqual(dict_val["items"][0]["lastName"], u1.last_name)
 
 if __name__ == '__main__':
     unittest.main()
