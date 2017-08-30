@@ -1,9 +1,10 @@
 import json
-from tests.base_test import BaseTest
 import unittest
-from app.models.office import User, Campus, Location
 import time
 from io import BytesIO
+
+from tests.base_test import BaseTest
+from app.models.office import User, Campus, Location
 
 class UserManagerTests(BaseTest):
 
@@ -88,8 +89,85 @@ class UserManagerTests(BaseTest):
         self.assertIsNotNone(dict_val["items"][0]["location"]["campus"]["name"], c1.name)
         self.assertEqual(dict_val["success"], True)
 
+    def test_add_user_should_fail_invalid_data(self):
+        loc = Location(name='Loc4', latitude=12.454, longitude=43.23234)
+        loc.save()
+        data = {
+            'firstName' : 'User4',
+            'username' : 'uname4',
+            'password' : 'pass4',
+            'locationId': loc.id
+        }
+        result = self.app.post('/api/users',data=data)
+        self.assertEqual(result.status_code, 400)
+        dict_val = json.loads(result.data)
+        self.assertEqual(dict_val["message"], 'Missing required fields!')
+        self.assertEqual(dict_val["success"], False)
+        users = User.query.all()
+        self.assertEqual(len(users), 0)
 
-    def test_upload_users_through_endpoint(self):
+    def test_add_user_with_valid_data(self):
+        loc = Location(name='Loc4', latitude=12.454, longitude=43.23234)
+        loc.save()
+        data = {
+            'firstName' : 'User4',
+            'lastName' : 'Last4',
+            'username' : 'uname4',
+            'password' : 'pass4',
+            'locationId': loc.id
+        }
+        result = self.app.post('/api/users',data=data)
+        self.assertEqual(result.status_code, 200)
+        dict_val = json.loads(result.data)
+        self.assertEqual(dict_val["item"]["firstName"], data['firstName'])
+        self.assertEqual(dict_val["item"]["username"], data['username'])
+        self.assertEqual(dict_val["success"], True)
+        users = User.query.all()
+        self.assertEqual(len(users), 1)
+        self.assertEqual(users[0].last_name,  data['lastName'])
+
+    def test_login_pass_with_valid_data(self):
+        u1 = User(first_name='user5', last_name='last5', username='uname5', password='password5')
+        u1.save()
+        data = {
+            'username' : u1.username,
+            'password' : u1.password
+        }
+        result = self.app.post('/api/users/login',data=data)
+        self.assertEqual(result.status_code, 200)
+        dict_val = json.loads(result.data)
+        self.assertEqual(dict_val["item"]["firstName"], u1.first_name)
+        self.assertEqual(dict_val["item"]["username"], u1.username)
+        self.assertEqual(dict_val["success"], True)
+
+
+    def test_login_pass_with_invalid_data(self):
+        u1 = User(first_name='user5', last_name='last5', username='uname5', password='password5')
+        u1.save()
+        data = {
+            'username' : u1.username
+        }
+        result = self.app.post('/api/users/login',data=data)
+        self.assertEqual(result.status_code, 401)
+        dict_val = json.loads(result.data)
+        self.assertEqual(dict_val["message"], 'Missing required fields!')
+        self.assertEqual(dict_val["success"], False)
+
+
+    def test_login_pass_with_invalid_credential_data(self):
+        u1 = User(first_name='user5', last_name='last5', username='uname5', password='password5')
+        u1.save()
+        data = {
+            'username' : u1.username,
+            'password' : 'wrongpass'
+        }
+        result = self.app.post('/api/users/login',data=data)
+        self.assertEqual(result.status_code, 403)
+        dict_val = json.loads(result.data)
+        self.assertEqual(dict_val["message"], 'Authentication Failed!')
+        self.assertEqual(dict_val["success"], False)
+
+    def test_upload_users_through_endpoint_complete_upload(self):
         file_content = b'[{"id": 1, "firstName": "User1", "lastName": "Last1", "username": "userlast1", "password": "pass1"}]'
         data = {}
         data['users'] = (BytesIO(file_content), 'users.json')
@@ -106,6 +184,22 @@ class UserManagerTests(BaseTest):
         self.assertEqual(users[0].last_name, 'Last1')
 
 
+    def test_upload_users_through_endpoint_partial_upload(self):
+        file_content = b'[{"id": 1, "firstName": "User1", "lastName": "Last1", "username": "userlast1", "password": "pass1"},{"id": 2, "firstName": "User7", "lastName": "Last8"}]'
+        data = {}
+        data['users'] = (BytesIO(file_content), 'users.json')
+        result = self.app.post('/api/users/upload',
+                            buffered=True,
+                            content_type='multipart/form-data',data=data)
+        dict_val = json.loads(result.data)
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(dict_val['success'], False)
+        self.assertEqual(dict_val['count'], 1)
+        users = User.query.all()
+        self.assertEqual(len(users), 1)
+        self.assertEqual(users[0].first_name, 'User1')
+        self.assertEqual(users[0].last_name, 'Last1')
+
     def test_download_users_through_endpoint(self):
         new_user = User(first_name='User2', last_name='Last2', username='uname2', password='pass2')
         new_user.save()
@@ -120,65 +214,6 @@ class UserManagerTests(BaseTest):
         self.assertEqual(len(dict_items), 1)
         self.assertEqual(dict_items[0]['firstName'], 'User2')
         self.assertEqual(dict_items[0]['lastName'], 'Last2')
-
-    # def test_create_alert_when_giving_existing_reference_id(self):
-    #     alert1 = Alert(description="description 1", reference_id="reference_1", delay=10, status="STARTED")
-    #     db.session.add(alert1)
-    #     db.session.commit()
-    #     result = self.app.put('/api/alerts',
-    #                           data={'reference_id': 'reference_1', 'delay': 1, 'description': 'description 1'})
-    #     time.sleep(2)
-    #     self.assertEqual(result.status_code, 400)
-    #     dict_val = json.loads(result.data)
-    #     self.assertEqual(dict_val['success'], False)
-    #     self.assertEqual(dict_val['message'], 'Duplicate reference Id')
-    #
-    # def test_clear_alert_when_giving_valid_reference_id_with_started_status(self):
-    #     alert1 = Alert(description="description 1", reference_id="reference_1", delay=10, status="STARTED")
-    #     db.session.add(alert1)
-    #     db.session.commit()
-    #     result = self.app.post('/api/alerts/reference_1')
-    #
-    #     actual_alert = Alert.query.filter_by(reference_id='reference_1').first()
-    #
-    #     self.assertEqual(result.status_code, 201)
-    #     dict_val = json.loads(result.data)
-    #     self.assertEqual(dict_val['success'], True)
-    #     self.assertEqual(actual_alert.status, 'COMPLETED')
-    #
-    # def test_clear_alert_when_giving_valid_reference_id_with_pending_status(self):
-    #     alert1 = Alert(description="description 2", reference_id="reference_2", delay=10, status="PENDING")
-    #     db.session.add(alert1)
-    #     db.session.commit()
-    #     result = self.app.post('/api/alerts/reference_2')
-    #
-    #     actual_alert = Alert.query.filter_by(reference_id='reference_2').first()
-    #
-    #     self.assertEqual(result.status_code, 201)
-    #     dict_val = json.loads(result.data)
-    #     self.assertEqual(dict_val['success'], True)
-    #     self.assertEqual(actual_alert.status, 'COMPLETED')
-    #
-    # def test_clear_alert_rejects_when_giving_invalid_reference_id(self):
-    #
-    #     result = self.app.post('/api/alerts/reference_1')
-    #     self.assertEqual(result.status_code, 400)
-    #     dict_val = json.loads(result.data)
-    #     self.assertEqual(dict_val['success'], False)
-    #     self.assertEqual(dict_val['message'], 'Invalid reference id')
-    #
-    # def test_clear_alert_when_the_alert_is_still_in_delay_period(self):
-    #     self.app.put('/api/alerts',
-    #                  data={'reference_id': 'reference_id_5', 'description': 'description 5', 'delay': 5})
-    #     time.sleep(2)
-    #     result = self.app.post('/api/alerts/reference_id_5')
-    #     self.assertEqual(result.status_code, 201)
-    #     dict_val = json.loads(result.data)
-    #     self.assertEqual(dict_val['success'], True)
-    #     time.sleep(5)
-    #     actual_alert = Alert.query.filter_by(reference_id='reference_id_5').first()
-    #     self.assertEqual(actual_alert.status, 'COMPLETED')
-    #
 
 if __name__ == '__main__':
     unittest.main()

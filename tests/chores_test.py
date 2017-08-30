@@ -27,7 +27,7 @@ class ChoresManagerTests(BaseTest):
         self.assertEqual(dict_val["items"][1]["title"], a2.title)
         self.assertEqual(dict_val["success"], True)
 
-    def test_add_announcement_and_fetch_data(self):
+    def test_add_announcement_with_valid_data(self):
         now = datetime.datetime.now()
         data = {
         'title' : 'Announcement3',
@@ -42,5 +42,9 @@ class ChoresManagerTests(BaseTest):
         self.assertEqual(dict_val["item"]["title"], data['title'])
         self.assertEqual(dict_val["item"]["validFrom"], data['validFrom'])
         self.assertEqual(dict_val["success"], True)
+        announcements = Announcement.query.all()
+        self.assertEqual(announcements[0].valid_till, now)
+        self.assertEqual(announcements[0].description, data['description'])
+
 if __name__ == '__main__':
     unittest.main()
