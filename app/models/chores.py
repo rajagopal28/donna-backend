@@ -12,13 +12,16 @@ class Event(db.Model):
     event_start = db.Column(DateTime)
     event_end = db.Column(DateTime)
     description = db.Column(String(50))
+    location_id = db.Column(Integer, ForeignKey('locations.id'))
+    location = relationship("Location")
     event_participants = relationship("EventParticipant", back_populates="event")
 
-    def __init__(self, title=None, description=None, event_start=None, event_end=None):
+    def __init__(self, title=None, description=None, event_start=None, event_end=None, location_id=None):
         self.title = title
         self.description = description
         self.event_start = event_start
         self.event_end = event_end
+        self.location_id = location_id
 
     def save(self):
         db.session.add(self)
@@ -31,6 +34,8 @@ class Event(db.Model):
             'description': self.description,
             'eventStart': self.event_start.timestamp()*1e3,
             'eventEnd': self.event_end.timestamp()*1e3,
+            'location_id': self.location_id,
+            'location' : self.location.to_dict() if self.location else None,
             'participants': [ep.to_dict(recurse=False) for ep in self.event_participants]
         }
 

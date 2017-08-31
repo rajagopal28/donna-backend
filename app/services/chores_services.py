@@ -8,13 +8,13 @@ def validate_and_add_announcement(form):
     now = datetime.datetime.now()
     title = form.get("title", None)
     description = form.get("description", None)
-    e_start = form.get("validFrom", now.timestamp()*1e3)
-    e_end = form.get("validTill", now.timestamp()*1e3)
+    e_start = form.get("validFrom", None)
+    e_end = form.get("validTill", None)
     category = form.get("category", None)
     # datetime.fromtimestamp(your_timestamp / 1e3)
-    start = datetime.datetime.fromtimestamp(float(e_start)/1e3)
-    end = datetime.datetime.fromtimestamp(float(e_end)/1e3)
-    if title and description and category:
+    if title and description and category and e_start and e_end:
+        start = datetime.datetime.fromtimestamp(float(e_start)/1e3)
+        end = datetime.datetime.fromtimestamp(float(e_end)/1e3)
         ancmt = Announcement(title=title, description=description, category=category, valid_from=start, valid_till=end)
         ancmt.save()
         return jsonify(success=True, item=ancmt.to_dict()), 200
@@ -31,14 +31,15 @@ def validate_and_add_event(form):
     now = datetime.datetime.now()
     title = form.get("title", None)
     description = form.get("description", None)
-    e_start = form.get("eventStart", now.timestamp()*1e3)
-    e_end = form.get("eventEnd", now.timestamp()*1e3)
+    e_start = form.get("eventStart", None)
+    e_end = form.get("eventEnd", None)
     participant_ids = form.get("participants", '')
+    location_id = form.get('locationId', None)
     # datetime.fromtimestamp(your_timestamp / 1e3)
-    start = datetime.datetime.fromtimestamp(float(e_start)/1e3)
-    end = datetime.datetime.fromtimestamp(float(e_end)/1e3)
-    if title and description:
-        event = Event(title=title, description=description, event_start=start, event_end=end)
+    if title and description and location_id and e_start and e_end:
+        start = datetime.datetime.fromtimestamp(float(e_start)/1e3)
+        end = datetime.datetime.fromtimestamp(float(e_end)/1e3)
+        event = Event(title=title, description=description, event_start=start, event_end=end, location_id=location_id)
         event.save()
         validate_and_add_participants(event.id, participant_ids)
         return jsonify(success=True, item=event.to_dict()), 200
