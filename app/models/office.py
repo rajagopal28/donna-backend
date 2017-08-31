@@ -34,8 +34,8 @@ class User(db.Model):
         dict_val = self.to_plain_dict()
         if 'password' in dict_val: del dict_val['password']
         dict_val["location"] = self.location.to_dict() if self.location else None
-        dict_val["created_ts"] = self.created_ts.timestamp()
-        dict_val["lastupdated_ts"] = self.lastupdated_ts.timestamp()
+        dict_val["createdTS"] = self.created_ts.timestamp()
+        dict_val["lastupdatedTS"] = self.lastupdated_ts.timestamp()
         return dict_val
 
     def to_plain_dict(self):

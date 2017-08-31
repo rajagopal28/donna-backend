@@ -1,8 +1,10 @@
 import os
 from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 
 myapp = Flask(__name__)
+CORS(myapp)
 
 # Include config from config.py
 myapp.config.from_pyfile('config.py')
