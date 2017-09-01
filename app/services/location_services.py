@@ -1,6 +1,7 @@
 from flask import jsonify
 from ast import literal_eval
 
+from app import db
 from app.models.office import Location, Campus
 
 def validate_and_add_location(form):
@@ -46,6 +47,7 @@ def validate_and_upload_locations(ustr, reset):
     locations = literal_eval(ustr.decode().replace("'", '"'))
     if reset :
         Location.query.delete()
+        db.session.commit()
     count = 0
     status = False
     for location in locations:
@@ -83,6 +85,7 @@ def validate_and_upload_campus(ustr, reset):
     campus = literal_eval(ustr.decode().replace("'", '"'))
     if reset :
         Campus.query.delete()
+        db.session.commit()
     count = 0
     status = False
     for campu in campus:

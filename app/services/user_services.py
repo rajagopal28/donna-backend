@@ -1,6 +1,7 @@
 from flask import jsonify
 from ast import literal_eval
 
+from app import db
 from app.models.office import User
 
 def validate_and_add_user(form):
@@ -37,6 +38,7 @@ def validate_and_upload_users(ustr, reset):
     users = literal_eval(ustr.decode().replace("'", '"'))
     if reset :
         User.query.delete()
+        db.session.commit()
     count = 0
     status = False
     for user in users:
