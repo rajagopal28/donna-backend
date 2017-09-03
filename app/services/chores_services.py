@@ -33,7 +33,7 @@ def validate_and_add_event(form):
     description = form.get("description", None)
     e_start = form.get("eventStart", None)
     e_end = form.get("eventEnd", None)
-    participant_ids = form.get("participants", '')
+    participant_ids = form.get("participantIds", '')
     location_id = form.get('locationId', None)
     # datetime.fromtimestamp(your_timestamp / 1e3)
     if title and description and location_id and e_start and e_end:

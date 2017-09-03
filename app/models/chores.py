@@ -34,7 +34,7 @@ class Event(db.Model):
             'description': self.description,
             'eventStart': self.event_start.timestamp()*1e3,
             'eventEnd': self.event_end.timestamp()*1e3,
-            'location_id': self.location_id,
+            'locationId': self.location_id,
             'location' : self.location.to_dict() if self.location else None,
             'participants': [ep.to_dict(recurse=False) for ep in self.event_participants]
         }

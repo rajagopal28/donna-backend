@@ -146,7 +146,7 @@ class ChoresManagerTests(BaseTest):
             'description' : 'Some event 5',
             'eventStart' : now.timestamp()*1e3,
             'eventEnd' : later.timestamp()*1e3,
-            'participants' : '%r,%r'%(u_id, 3),
+            'participantIds' : '%r,%r'%(u_id, 3),
             'locationId' : l_id
         }
         result = self.app.post('/api/events',data=data)
