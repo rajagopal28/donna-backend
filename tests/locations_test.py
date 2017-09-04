@@ -146,21 +146,24 @@ class LocationManagerTests(BaseTest):
         data = {
             'name': 'Campus8',
             'latitude': 34.111,
-            'longitude' : 43.23
+            'longitude' : 43.23,
+            'campusNumber' : 32
         }
         result = self.app.post('/api/campus',data=data)
         self.assertEqual(result.status_code, 200)
         dict_val = json.loads(result.data)
         self.assertEqual(dict_val["item"]["name"], data['name'])
         self.assertEqual(dict_val["item"]["latitude"], data['latitude'])
+        self.assertEqual(dict_val["item"]["campusNumber"], data['campusNumber'])
         self.assertEqual(dict_val["success"], True)
         campus = Campus.query.all()
         self.assertEqual(len(campus), 1)
         self.assertEqual(campus[0].longitude,  data['longitude'])
+        self.assertEqual(campus[0].campus_number,  data['campusNumber'])
 
 
     def test_upload_campus_through_endpoint(self):
-        file_content = b'[{"id": 1, "name": "loc1", "latitude": 62.64654, "longitude": 63.54465}]'
+        file_content = b'[{"id": 1, "name": "loc1", "latitude": 62.64654, "longitude": 63.54465, "campusNumber" : 66}]'
         data = {}
         data['campus'] = (BytesIO(file_content), 'campus.json')
         result = self.app.post('/api/campus/upload',
@@ -176,7 +179,7 @@ class LocationManagerTests(BaseTest):
 
 
     def test_download_campus_through_endpoint(self):
-        new_loc = Campus(name='Camp2',latitude=62.64654, longitude=63.54465 )
+        new_loc = Campus(name='Camp2',latitude=62.64654, longitude=63.54465, campus_number=15)
         new_loc.save()
         result = self.app.get('/api/campus/download')
         content = b''

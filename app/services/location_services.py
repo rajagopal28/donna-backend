@@ -74,8 +74,9 @@ def validate_and_save_campus(form):
     name = form.get('name', None)
     latitude = form.get('latitude', None)
     longitude = form.get('longitude', None)
+    campus_number = form.get('campusNumber', None)
     if name and latitude and longitude:
-        new_campus = Campus(name=name, latitude=latitude, longitude=longitude)
+        new_campus = Campus(name=name, latitude=latitude, longitude=longitude, campus_number=campus_number)
         new_campus.save()
         return True, new_campus
     else:

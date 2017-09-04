@@ -95,12 +95,14 @@ class Campus(db.Model):
     latitude = db.Column(Float)
     longitude = db.Column(Float)
     name = db.Column(String(50))
+    campus_number =  db.Column(Integer)
     locations = relationship("Location", back_populates="campus")
 
-    def __init__(self, latitude=None, longitude=None, name=None):
+    def __init__(self, latitude=None, longitude=None, name=None, campus_number=None):
         self.latitude = latitude
         self.longitude = longitude
         self.name = name
+        self.campus_number = campus_number
 
     def save(self):
         db.session.add(self)
@@ -111,7 +113,8 @@ class Campus(db.Model):
             'id' : self.id,
             'name': self.name,
             'latitude': self.latitude,
-            'longitude': self.longitude
+            'longitude': self.longitude,
+            'campusNumber' : self.campus_number
         }
 
     def __repr__(self):
