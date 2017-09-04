@@ -3,14 +3,15 @@ import json
 from datetime import datetime, timedelta
 
 from app.models.office import User, Location
-from app.models.chores import Event, Announcement
+from app.models.chores import Event, Announcement, EventParticipant
 
 def process_and_fullfill_chat_request(input_payload):
     if validate_input_payload(input_payload):
-        action = input_payload['result']['action']
-        parameters = input_payload['result']['parameters']
-        context = input_payload['result']['contexts']
-        existing_response = input_payload['result']['fulfillment']['speech']
+        input_json =  input_payload['result']
+        action = input_json['action']
+        parameters = input_json['parameters']
+        context = input_json['contexts']
+        existing_response = input_json['fulfillment']['speech']
         resp = {
             'speech': existing_response,
             'displayText': existing_response,
@@ -19,9 +20,9 @@ def process_and_fullfill_chat_request(input_payload):
             'source': 'DonnaFulFillmentBackend'
         }
         if action == 'schedule-meeting-request':
-            new_response, parameters = process_schedule_meeting(parameters, resp, input_payload['result'])
+            new_response, parameters = process_schedule_meeting(parameters, resp, input_json)
         elif action == 'view-meetings-request':
-            new_response, parameters = process_view_meeting_request(parameters, resp)
+            new_response, parameters = process_view_meeting_request(parameters, resp, input_json)
         elif action == 'view-person-info-request':
             new_response, parameters = process_get_person_info_request(parameters, resp)
         elif action == 'view-person-location-request':
@@ -52,16 +53,26 @@ def validate_auth_context(result=None):
         contexts = result.get('contexts', None)
         if contexts and len(contexts) > 0:
             auth_context = [c for c in contexts if c.get('name', None) =='auth'][0]
-            print(auth_context)
+            # print(auth_context)
             if auth_context :
                 auth_params = auth_context.get('parameters',None)
                 if auth_params and auth_params.get('token', None):
                     return True, auth_params.get('token')
     return False, None
 
-def process_view_meeting_request(parameters, payload):
+def process_view_meeting_request(parameters, payload, input_json):
     # bring logic to validate and fetch all user events
-    return payload['speech'], parameters
+    authenticated, token = validate_auth_context(input_json)
+    events = []
+    if authenticated:
+        user = User.query.filter_by(username=token).first()
+        if user:
+            event_p = EventParticipant.query.filter_by(participant_id=user.id).all()
+            events = [ep.event for ep in event_p]
+    else:
+        events = Event.query.all()
+    event_list = '\n'.join([e.title for e in events])
+    return event_list, parameters
 
 def process_direction_to_given_location(parameters, payload):
     # bring logic to validate and fetch location info

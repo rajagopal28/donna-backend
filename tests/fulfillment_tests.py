@@ -11,10 +11,7 @@ class FulfillmentManagerTests(BaseTest):
 
     def test_should_return_input_payload_if_no_action_defined(self):
         payload_data = {
-            'status' : {
-                'errorType': 'success',
-                'code': 200
-            },'result': {
+            'result': {
                 'parameters': {
                     'city': 'Rome',
                     'name': 'Ana'
@@ -33,10 +30,6 @@ class FulfillmentManagerTests(BaseTest):
 
     def test_should_not_process_meeting_for_invalid_input_with_auth_in_action_schedule_meeting(self):
         payload_data = {
-            'status' : {
-                'errorType': 'success',
-                'code': 200
-            },
             'result': {
                 'parameters': {
                     'campus-location' : 'camp1',
@@ -64,10 +57,6 @@ class FulfillmentManagerTests(BaseTest):
 
     def test_should_not_process_meeting_for_valid_input_without_auth_in_action_schedule_meeting(self):
         payload_data = {
-            'status' : {
-                'errorType': 'success',
-                'code': 200
-            },
             'result': {
                 'parameters': {
                     'campus-location' : 'camp1',
@@ -91,10 +80,6 @@ class FulfillmentManagerTests(BaseTest):
 
     def test_should_return_processed_data_for_valid_input_and_data_in_action_schedule_meeting(self):
         payload_data = {
-            'status' : {
-                'errorType': 'success',
-                'code': 200
-            },
             'result': {
                 'parameters': {
                     'campus-location' : 'camp1',
@@ -128,10 +113,6 @@ class FulfillmentManagerTests(BaseTest):
         self.test_db.session.commit()
 
         payload_data = {
-            'status' : {
-                'errorType': 'success',
-                'code': 200
-            },
             'result': {
                 'parameters': {
                     'campus-location' : 'loc1',
@@ -160,6 +141,94 @@ class FulfillmentManagerTests(BaseTest):
         self.assertEqual(len(meetings), 1)
         self.assertEqual(meetings[0].title, 'user2\'s meeting with user2 at loc1')
 
+
+    def test_should_process_meeting_for_valid_input_without_auth_in_action_schedule_meeting(self):
+        payload_data = {
+            'result': {
+                'parameters': {
+                    'campus-location' : 'camp1',
+                    'office-user' : 'user1',
+                    'date' : '2017-09-08',
+                    'time' : '13:30:00'
+                },
+                'fulfillment': {
+                    'speech': 'Hi Ana! Nice to meet you!'
+                },
+                'contexts': [],
+                'action': 'schedule-meeting-request'
+            }
+        }
+        result = self.app.post('/api/ai/fulfillment', content_type='application/json', data=json.dumps(payload_data))
+        dict_val = json.loads(result.data)
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(dict_val['speech'], 'Not authenticated to Add Event!!')
+        self.assertEqual(dict_val['displayText'], 'Not authenticated to Add Event!!')
+
+
+    def test_should_return_processed_data_for_valid_input_auth_and_data_in_action_view_meetings(self):
+        now = datetime.now()
+        e1 = Event(title='Event 9s', description='Some desc 9', event_start=now, event_end=now)
+        e2 = Event(title='Event 12', description='Some desc 12', event_start=now, event_end=now)
+        self.test_db.session.add(e1)
+        self.test_db.session.add(e2)
+        self.test_db.session.commit()
+        payload_data = {
+            'result': {
+                'parameters': {
+                    'some-param': 'some-value'
+                },
+                'fulfillment': {
+                    'speech': 'Hi Ana! Nice to meet you!'
+                },
+                'contexts': [],
+                'action': 'view-meetings-request'
+            }
+        }
+        result = self.app.post('/api/ai/fulfillment', content_type='application/json', data=json.dumps(payload_data))
+        dict_val = json.loads(result.data)
+        self.assertEqual(result.status_code, 200)
+        print(dict_val)
+        self.assertEqual(dict_val['speech'], 'Event 9s\nEvent 12')
+
+    def test_should_return_processed_data_for_valid_auth_and_data_input_in_action_view_meetings(self):
+        now = datetime.now()
+        e1 = Event(title='Event 9s', description='Some desc 9', event_start=now, event_end=now)
+        e2 = Event(title='Event 12', description='Some desc 12', event_start=now, event_end=now)
+        u1 = User(first_name='User12', last_name='Last53', username='uname31', password='pas3232')
+        self.test_db.session.add(e1)
+        self.test_db.session.add(e2)
+        self.test_db.session.add(u1)
+        self.test_db.session.commit()
+        e_id = e1.id
+        u_id = u1.id
+
+        ep1 = EventParticipant(event_id=e_id, participant_id=u_id)
+        self.test_db.session.add(ep1)
+        self.test_db.session.commit()
+
+
+        payload_data = {
+            'result': {
+                'parameters': {
+                    'some-param': 'some-value'
+                },
+                'fulfillment': {
+                    'speech': 'Hi Ana! Nice to meet you!'
+                },
+                'contexts': [{
+                    'name' : 'auth',
+                    'parameters' : {
+                        'token' : 'uname31'
+                    }
+                }],
+                'action': 'view-meetings-request'
+            }
+        }
+        result = self.app.post('/api/ai/fulfillment', content_type='application/json', data=json.dumps(payload_data))
+        dict_val = json.loads(result.data)
+        self.assertEqual(result.status_code, 200)
+        print(dict_val)
+        self.assertEqual(dict_val['speech'], 'Event 9s')
 
 if __name__ == '__main__':
     unittest.main()
