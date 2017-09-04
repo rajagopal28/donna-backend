@@ -2,6 +2,7 @@ from flask import jsonify
 import json
 
 def process_and_fullfill_chat_request(input_payload):
+    print(input_payload)
     if validate_input_payload(input_payload):
         action = input_payload['result']['action']
         parameters = input_payload['result']['parameters']
@@ -33,8 +34,6 @@ def validate_input_payload(input_payload=None):
                     auth_params = auth_context.get('parameters',None)
                     if auth_params and auth_params.get('token', None):
                         return True
-
-
     return False
 
 def process_schedule_meeting(parameters, resp):

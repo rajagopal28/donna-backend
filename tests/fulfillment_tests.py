@@ -55,6 +55,7 @@ class FulfillmentManagerTests(BaseTest):
             }
         }
         result = self.app.post('/api/ai/fulfillment', content_type='application/json', data=json.dumps(payload_data))
+        dict_val = json.loads(result.data)
         self.assertEqual(result.status_code, 200)
         self.assertEqual(dict_val['speech'], payload_data['result']['fulfillment']['speech'])
         self.assertEqual(dict_val['displayText'], payload_data['result']['fulfillment']['speech'])
