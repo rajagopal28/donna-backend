@@ -3,6 +3,8 @@ from app import myapp
 
 from app.services.user_services import validate_and_add_user, fetch_all_users, validate_input_and_authenticate, validate_and_upload_users,fetch_user_with
 
+from app.services.chat_fullfilment_service import process_and_fullfill_chat_request
+
 @myapp.route('/api/users', methods=['GET', 'POST'])
 def users():
     if request.method == 'POST':
@@ -36,3 +38,7 @@ def download_users():
         mimetype="application/json",
         headers={"Content-disposition":
                  "attachment; filename=users.json"})
+
+@myapp.route('/api/ai/fulfillment', methods=['POST'])
+def fullfill_chat_request():
+    return process_and_fullfill_chat_request(request.json)
