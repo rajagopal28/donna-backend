@@ -67,8 +67,8 @@ def process_view_meeting_request(parameters, payload, input_json):
     # bring logic to validate and fetch all user events
     authenticated, token = validate_auth_context(input_json)
     events = []
-    print('token='+token)
     if authenticated:
+        print('token='+token)
         print('auth success')
         user = User.query.filter_by(username=token).first()
         print('found user..'+ user.username)
@@ -77,7 +77,7 @@ def process_view_meeting_request(parameters, payload, input_json):
             events = [ep.event for ep in event_p]
     else:
         events = Event.query.all()
-    event_list = ','.join([e.title for e in events])
+    event_list = ', '.join([e.title for e in events])
     return event_list, parameters
 
 def process_direction_to_given_location(parameters, payload):

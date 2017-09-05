@@ -188,7 +188,7 @@ class FulfillmentManagerTests(BaseTest):
         dict_val = json.loads(result.data)
         self.assertEqual(result.status_code, 200)
         print(dict_val)
-        self.assertEqual(dict_val['speech'], 'Event 9s\nEvent 12')
+        self.assertEqual(dict_val['speech'], 'Event 9s, Event 12')
 
     def test_should_return_processed_data_for_valid_auth_and_data_input_in_action_view_meetings(self):
         now = datetime.now()
