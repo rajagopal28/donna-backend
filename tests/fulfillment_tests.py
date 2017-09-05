@@ -228,5 +228,78 @@ class FulfillmentManagerTests(BaseTest):
         # print(dict_val)
         self.assertEqual(dict_val['speech'], 'Event 9s')
 
+
+    def test_should_return_processed_data_for_valid_data_for_user_no_location_in_action_view_person_info(self):
+        u1 = User(first_name='User22', last_name='Last32', username='uname39', password='pas3232')
+        self.test_db.session.add(u1)
+        self.test_db.session.commit()
+        payload_data = {
+            'result': {
+                'parameters': {
+                    'office-user': 'User22'
+                },
+                'fulfillment': {
+                    'speech': 'Some message for view-person-info-request!'
+                },
+                'contexts': [],
+                'action': 'view-person-info-request'
+            }
+        }
+        result = self.app.post('/api/ai/fulfillment', content_type='application/json', data=json.dumps(payload_data))
+        dict_val = json.loads(result.data)
+        self.assertEqual(result.status_code, 200)
+        # print(dict_val)
+        self.assertEqual(dict_val['speech'], 'User: User22 Last32')
+
+
+    def test_should_return_processed_data_for_valid_data_for_user_and_location_in_action_view_person_info(self):
+        l1 = Location(latitude=12.32434, longitude=56.4324, name="New user loc1111")
+        self.test_db.session.add(l1)
+        self.test_db.session.commit()
+
+        u1 = User(first_name='User22', last_name='Last32', username='uname39', password='pas3232', location_id=l1.id)
+        self.test_db.session.add(u1)
+        self.test_db.session.commit()
+        payload_data = {
+            'result': {
+                'parameters': {
+                    'office-user': 'User22'
+                },
+                'fulfillment': {
+                    'speech': 'Some message for view-person-info-request!'
+                },
+                'contexts': [],
+                'action': 'view-person-info-request'
+            }
+        }
+        result = self.app.post('/api/ai/fulfillment', content_type='application/json', data=json.dumps(payload_data))
+        dict_val = json.loads(result.data)
+        self.assertEqual(result.status_code, 200)
+        # print(dict_val)
+        self.assertEqual(dict_val['speech'], 'User: User22 Last32 is located at New user loc1111')
+
+
+
+    def test_should_not_processed_data_for_invalid_data_for_view_person_info(self):
+        payload_data = {
+            'result': {
+                'parameters': {
+                    'some-param': 'vv121'
+                },
+                'fulfillment': {
+                    'speech': 'Some message for view-person-info-request!'
+                },
+                'contexts': [],
+                'action': 'view-person-info-request'
+            }
+        }
+        result = self.app.post('/api/ai/fulfillment', content_type='application/json', data=json.dumps(payload_data))
+        dict_val = json.loads(result.data)
+        self.assertEqual(result.status_code, 200)
+        # print(dict_val)
+        self.assertEqual(dict_val['speech'], payload_data['result']['fulfillment']['speech'])
+
+
+
 if __name__ == '__main__':
     unittest.main()

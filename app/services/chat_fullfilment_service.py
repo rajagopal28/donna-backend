@@ -103,6 +103,14 @@ def process_fetch_office_announcements(parameters, payload):
 
 def process_get_person_info_request(parameters, payload):
     # fetch info about the given person
+    first_name = parameters.get('office-user', None)
+    if first_name:
+        user = User.query.filter_by(first_name=first_name).first()
+        if user:
+            speech = 'User: ' + user.first_name + ' ' + user.last_name
+            if user.location:
+                speech += ' is located at ' + user.location.name
+            return speech, parameters
     return payload['speech'], parameters
 
 def process_schedule_meeting(parameters, payload, input_json):
