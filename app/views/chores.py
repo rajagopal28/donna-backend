@@ -14,7 +14,7 @@ def event():
     if request.method == 'POST':
         return validate_and_add_event(request.form)
     else:
-        return fetch_all_events()
+        return fetch_all_events(request.args)
 
 @myapp.route('/api/events/<event_id>', methods=['GET', 'POST'])
 def event_participants(event_id):

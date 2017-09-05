@@ -69,6 +69,31 @@ class ChoresManagerTests(BaseTest):
         self.assertEqual(len(announcements), 0)
 
 
+    def test_all_events_for_given_user_response_with_inserted_data(self):
+        now = datetime.now()
+        e1 = Event(title='Event 1', description='Some desc 1', event_start=now, event_end=now)
+        e2 = Event(title='Event 2', description='Some desc 2', event_start=now, event_end=now)
+        u1 = User(first_name='user1', last_name='last1', username='uname1', password='password1')
+
+        self.test_db.session.add(e1)
+        self.test_db.session.add(e2)
+        self.test_db.session.add(u1)
+        self.test_db.session.commit()
+
+        e1_id = e1.id
+        u1_id = u1.id
+        ep1 = EventParticipant(event_id=e1_id, participant_id=u1.id)
+        self.test_db.session.add(ep1)
+        self.test_db.session.commit()
+
+        result = self.app.get('/api/events?userId='+str(u1_id))
+        dict_val = json.loads(result.data)
+
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(len(dict_val["items"]), 1)
+        self.assertEqual(dict_val["items"][0]["title"], e1.title)
+        self.assertEqual(dict_val["success"], True)
+
     def test_all_events_for_response_with_inserted_data(self):
         now = datetime.now()
         e1 = Event(title='Event 1', description='Some desc 1', event_start=now, event_end=now)

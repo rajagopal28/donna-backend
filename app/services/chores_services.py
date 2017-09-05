@@ -46,8 +46,14 @@ def validate_and_add_event(form):
     else:
         return jsonify(success=False, message="Missing Fields!!!"), 401
 
-def fetch_all_events():
-    events = Event.query.all()
+def fetch_all_events(args):
+    user_id = args.get('userId', None)
+    events = []
+    if user_id:
+        eps = EventParticipant.query.filter_by(participant_id=user_id).all()
+        events = [ep.event for ep in eps]
+    else:
+        events = Event.query.all()
     response = [evt.to_dict() for evt in events]
     return jsonify(items=response, success=True)
 
