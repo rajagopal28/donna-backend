@@ -6,48 +6,57 @@ from app.models.office import User, Location
 from app.models.chores import Event, Announcement, EventParticipant
 
 def process_and_fullfill_chat_request(input_payload):
-    print(input_payload)
+    # print(input_payload)
     if validate_input_payload(input_payload):
-        print('payload valid')
+        # print('payload valid')
         input_json =  input_payload['result']
-        action = input_json['action']
-        parameters = input_json['parameters']
         context = input_json['contexts']
         existing_response = input_json['fulfillment']['speech']
+        action = input_json['action']
         resp = {
             'speech': existing_response,
             'displayText': existing_response,
-            'data': parameters,
-            'contextOut': context,
             'source': 'DonnaFulFillmentBackend'
         }
-        print(resp)
-        if action == 'schedule-meeting-request':
-            new_response, parameters = process_schedule_meeting(parameters, resp, input_json)
-        elif action == 'view-meetings-request':
-            new_response, parameters = process_view_meeting_request(parameters, resp, input_json)
-        elif action == 'view-person-info-request':
-            new_response, parameters = process_get_person_info_request(parameters, resp)
-        elif action == 'view-person-location-request':
-            new_response, parameters = process_get_person_info_request(parameters, resp)
-        elif action == 'route-to-location-request':
-            new_response, parameters = process_direction_to_given_location(parameters, resp)
-        elif action == 'route-to-person-location-request':
-            new_response, parameters = process_direction_to_given_person_location(parameters, resp)
-        elif action == 'view-office-announcements':
-            new_response, parameters = process_fetch_office_announcements(parameters, resp)
-        resp['speech'] = new_response
-        resp['displayText'] = new_response
+        if validate_payload_parameters(input_json):
+            parameters = input_json['parameters']
+            # print(resp)
+            if action == 'schedule-meeting-request':
+                new_response, parameters = process_schedule_meeting(parameters, resp, input_json)
+            elif action == 'view-meetings-request':
+                new_response, parameters = process_view_meeting_request(parameters, resp, input_json)
+            elif action == 'view-person-info-request':
+                new_response, parameters = process_get_person_info_request(parameters, resp)
+            elif action == 'view-person-location-request':
+                new_response, parameters = process_get_person_info_request(parameters, resp)
+            elif action == 'route-to-location-request':
+                new_response, parameters = process_direction_to_given_location(parameters, resp)
+            elif action == 'route-to-person-location-request':
+                new_response, parameters = process_direction_to_given_person_location(parameters, resp)
+            elif action == 'view-office-announcements':
+                new_response, parameters = process_fetch_office_announcements(parameters, resp)
+            resp['speech'] = new_response
+            resp['displayText'] = new_response
+            resp['contextOut'] = context
+            resp['parameters'] = parameters
         return json.dumps(resp)
     return json.dumps(input_payload)
+
+def validate_payload_parameters(input_payload=None):
+    if input_payload:
+        parameters = input_payload.get('parameters', None)
+        # print(parameters)
+        if parameters:
+            return True
+    return False
 
 def validate_input_payload(input_payload=None):
     if input_payload:
         result = input_payload.get('result', None)
         if result:
+            action = result.get('action', None)
             fulfillment = result.get('fulfillment', None)
-            parameters = result.get('parameters', None)
-            if fulfillment and fulfillment.get('speech', None) and parameters:
+            if action and fulfillment and fulfillment.get('speech', None):
                 return True
     return False
 
@@ -68,10 +77,10 @@ def process_view_meeting_request(parameters, payload, input_json):
     authenticated, token = validate_auth_context(input_json)
     events = []
     if authenticated:
-        print('token='+token)
+        # print('token='+token)
         print('auth success')
         user = User.query.filter_by(username=token).first()
-        print('found user..'+ user.username)
+        # print('found user..'+ user.username)
         if user:
             event_p = EventParticipant.query.filter_by(participant_id=user.id).all()
             events = [ep.event for ep in event_p]

@@ -21,7 +21,7 @@ class FulfillmentManagerTests(BaseTest):
             }
         }
         result = self.app.post('/api/ai/fulfillment', content_type='application/json', data=json.dumps(payload_data))
-        print (result.data)
+        # print (result.data)
         dict_val = json.loads(result.data)
 
         self.assertEqual(result.status_code, 200)
@@ -31,13 +31,11 @@ class FulfillmentManagerTests(BaseTest):
     def test_should_not_process_meeting_for_invalid_input_with_auth_in_action_schedule_meeting(self):
         payload_data = {
             'result': {
-                'parameters': {
-                    'campus-location' : 'camp1',
-                    'office-user' : 'user1',
-                    'date' : '2017-09-08',
-                },
                 'fulfillment': {
                     'speech': 'Hi Ana! Nice to meet you!'
+                },
+                'parameters' : {
+                    'some-param' : 'some-value'
                 },
                 'contexts': [{
                     'name' : 'auth',
@@ -187,7 +185,7 @@ class FulfillmentManagerTests(BaseTest):
         result = self.app.post('/api/ai/fulfillment', content_type='application/json', data=json.dumps(payload_data))
         dict_val = json.loads(result.data)
         self.assertEqual(result.status_code, 200)
-        print(dict_val)
+        # print(dict_val)
         self.assertEqual(dict_val['speech'], 'Event 9s, Event 12')
 
     def test_should_return_processed_data_for_valid_auth_and_data_input_in_action_view_meetings(self):
@@ -227,7 +225,7 @@ class FulfillmentManagerTests(BaseTest):
         result = self.app.post('/api/ai/fulfillment', content_type='application/json', data=json.dumps(payload_data))
         dict_val = json.loads(result.data)
         self.assertEqual(result.status_code, 200)
-        print(dict_val)
+        # print(dict_val)
         self.assertEqual(dict_val['speech'], 'Event 9s')
 
 if __name__ == '__main__':
