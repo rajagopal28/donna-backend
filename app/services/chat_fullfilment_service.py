@@ -6,7 +6,9 @@ from app.models.office import User, Location
 from app.models.chores import Event, Announcement, EventParticipant
 
 def process_and_fullfill_chat_request(input_payload):
+    print(input_payload)
     if validate_input_payload(input_payload):
+        print('payload valid')
         input_json =  input_payload['result']
         action = input_json['action']
         parameters = input_json['parameters']
@@ -19,6 +21,7 @@ def process_and_fullfill_chat_request(input_payload):
             'contextOut': context,
             'source': 'DonnaFulFillmentBackend'
         }
+        print(resp)
         if action == 'schedule-meeting-request':
             new_response, parameters = process_schedule_meeting(parameters, resp, input_json)
         elif action == 'view-meetings-request':
@@ -64,14 +67,17 @@ def process_view_meeting_request(parameters, payload, input_json):
     # bring logic to validate and fetch all user events
     authenticated, token = validate_auth_context(input_json)
     events = []
+    print('token='+token)
     if authenticated:
+        print('auth success')
         user = User.query.filter_by(username=token).first()
+        print('found user..'+ user.username)
         if user:
             event_p = EventParticipant.query.filter_by(participant_id=user.id).all()
             events = [ep.event for ep in event_p]
     else:
         events = Event.query.all()
-    event_list = '\n'.join([e.title for e in events])
+    event_list = ','.join([e.title for e in events])
     return event_list, parameters
 
 def process_direction_to_given_location(parameters, payload):
