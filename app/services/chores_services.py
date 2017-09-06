@@ -1,6 +1,7 @@
 from flask import jsonify
 import datetime
 
+from app import db
 from app.models.office import User
 from app.models.chores import Announcement, Event, EventParticipant
 
@@ -77,3 +78,21 @@ def fetch_all_event_participants(event_id):
     participants = EventParticipant.query.filter_by(event_id=event_id).all()
     resp = [p.participant.to_dict() for p in participants]
     return jsonify(success=True, items=resp), 200
+
+def delete_event_with(id=None):
+    event = Event.query.filter_by(id=id).first()
+    if event:
+        db.session.delete(event)
+        db.session.commit()
+        return jsonify(success=True, item=event.to_dict()), 200
+    else:
+        return jsonify(message='Requested Record Not Available!', success=False), 404
+
+def delete_announcement_with(id=None):
+    announcement = Announcement.query.filter_by(id=id).first()
+    if announcement:
+        db.session.delete(announcement)
+        db.session.commit()
+        return jsonify(success=True, item=announcement.to_dict()), 200
+    else:
+        return jsonify(message='Requested Record Not Available!', success=False), 404

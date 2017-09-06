@@ -94,6 +94,51 @@ class ChoresManagerTests(BaseTest):
         self.assertEqual(dict_val["items"][0]["title"], e1.title)
         self.assertEqual(dict_val["success"], True)
 
+
+    def test_delete_announcement_with_given_id(self):
+        now = datetime.now()
+        a1 = Announcement(title='Announcement1', description='Some desc 1', category='food', valid_from=now, valid_till=now)
+        self.test_db.session.add(a1)
+        self.test_db.session.commit()
+
+        a1_id = a1.id
+        result = self.app.delete('/api/announcements/'+str(a1_id))
+        dict_val = json.loads(result.data)
+
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(dict_val["item"]["title"], a1.title)
+        self.assertEqual(dict_val["success"], True)
+        es = Event.query.all()
+        self.assertEqual(len(es), 0)
+
+    def test_not_delete_announcement_with_invalid_id(self):
+        result = self.app.delete('/api/announcements/13')
+        dict_val = json.loads(result.data)
+        self.assertEqual(result.status_code, 404)
+        self.assertEqual(dict_val['message'], 'Requested Record Not Available!')
+
+    def test_delete_event_with_given_id(self):
+        now = datetime.now()
+        e1 = Event(title='Event 1', description='Some desc 1', event_start=now, event_end=now)
+        self.test_db.session.add(e1)
+        self.test_db.session.commit()
+
+        e1_id = e1.id
+        result = self.app.delete('/api/events/'+str(e1_id))
+        dict_val = json.loads(result.data)
+
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(dict_val["item"]["title"], e1.title)
+        self.assertEqual(dict_val["success"], True)
+        es = Event.query.all()
+        self.assertEqual(len(es), 0)
+
+    def test_not_delete_event_with_invalid_id(self):
+        result = self.app.delete('/api/events/13')
+        dict_val = json.loads(result.data)
+        self.assertEqual(result.status_code, 404)
+        self.assertEqual(dict_val['message'], 'Requested Record Not Available!')
+
     def test_all_events_for_response_with_inserted_data(self):
         now = datetime.now()
         e1 = Event(title='Event 1', description='Some desc 1', event_start=now, event_end=now)
