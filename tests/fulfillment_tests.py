@@ -3,6 +3,8 @@ from tests.base_test import BaseTest
 import unittest
 from app.models.office import User, Location, Campus
 from app.models.chores import Announcement, Event, EventParticipant
+
+from app.services.chat_fullfilment_service import dstr
 import time
 from io import BytesIO
 from datetime import datetime, timedelta
@@ -186,7 +188,9 @@ class FulfillmentManagerTests(BaseTest):
         dict_val = json.loads(result.data)
         self.assertEqual(result.status_code, 200)
         # print(dict_val)
-        self.assertEqual(dict_val['speech'], 'Event 9s, Event 12')
+
+        res_string = ", ".join([(e.title+' From: '+dstr(now)+' Till: '+dstr(now)) for e in [e1, e2]])
+        self.assertEqual(dict_val['speech'], res_string)
 
     def test_should_return_processed_data_for_valid_auth_and_data_input_in_action_view_meetings(self):
         now = datetime.now()
@@ -226,7 +230,7 @@ class FulfillmentManagerTests(BaseTest):
         dict_val = json.loads(result.data)
         self.assertEqual(result.status_code, 200)
         # print(dict_val)
-        self.assertEqual(dict_val['speech'], 'Event 9s')
+        self.assertEqual(dict_val['speech'], (e1.title+' From: '+dstr(now)+' Till: '+dstr(now)))
 
 
     def test_should_return_processed_data_for_valid_data_for_user_no_location_in_action_view_person_info(self):
@@ -432,7 +436,7 @@ class FulfillmentManagerTests(BaseTest):
         dict_val = json.loads(result.data)
         self.assertEqual(result.status_code, 200)
         # print(dict_val)
-        self.assertEqual(dict_val['speech'], 'Announcement24food')
+        self.assertEqual(dict_val['speech'], 'Announcement24food From:  Till: ')
 
     def test_should_return_processed_data_for_valid_data_with_non_food_type_for_announcements(self):
         a1 = Announcement(title='Announcement12meetings', description='some Announcement related to meetings', category='meetings')
@@ -458,7 +462,7 @@ class FulfillmentManagerTests(BaseTest):
         dict_val = json.loads(result.data)
         self.assertEqual(result.status_code, 200)
         # print(dict_val)
-        self.assertEqual(dict_val['speech'], 'Announcement12meetings, Announcement24food')
+        self.assertEqual(dict_val['speech'], 'Announcement12meetings From:  Till: , Announcement24food From:  Till: ')
 
 
     def test_should_not_processed_data_for_valid_data_with_no_type_for_announcements(self):

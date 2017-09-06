@@ -85,7 +85,7 @@ def process_view_meeting_request(parameters, payload, input_json):
             events = [ep.event for ep in event_p]
     else:
         events = Event.query.all()
-    event_list = ', '.join([e.title for e in events])
+    event_list = ', '.join([(e.title+' From: '+dstr(e.event_start)+' Till: '+dstr(e.event_end)) for e in events])
     return event_list, parameters
 
 def process_direction_to_given_location(parameters, payload):
@@ -112,7 +112,7 @@ def process_fetch_office_announcements(parameters, payload):
     else:
         announcements = Announcement.query.filter_by(category=e_type).all()
     if len(announcements) > 0:
-        response_string = ", ".join([a.title for a in announcements])
+        response_string = ", ".join([(a.title+' From: '+dstr(a.valid_from)+' Till: '+dstr(a.valid_till)) for a in announcements])
     return response_string, parameters
 
 def process_get_person_info_request(parameters, payload):
@@ -163,3 +163,6 @@ def validate_input_fetch_data_and_add_event(event_date, participant_name, locati
         meeting.save()
         return True
     return False
+
+def dstr(date_to_change):
+    return date_to_change.strftime('%d, %b %Y - %H:%M') if date_to_change else ''
