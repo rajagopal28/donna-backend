@@ -110,6 +110,7 @@ def process_get_person_info_request(parameters, payload):
             speech = 'User: ' + user.first_name + ' ' + user.last_name
             if user.location:
                 speech += ' is located at ' + user.location.name
+                parameters['location'] = user.location.to_dict()
             return speech, parameters
     return payload['speech'], parameters
 

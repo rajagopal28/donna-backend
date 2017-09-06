@@ -277,7 +277,8 @@ class FulfillmentManagerTests(BaseTest):
         self.assertEqual(result.status_code, 200)
         # print(dict_val)
         self.assertEqual(dict_val['speech'], 'User: User22 Last32 is located at New user loc1111')
-
+        self.assertEqual(dict_val['parameters']['location']['name'], l1.name)
+        self.assertEqual(dict_val['parameters']['location']['latitude'], l1.latitude)
 
 
     def test_should_not_processed_data_for_invalid_data_for_view_person_info(self):
@@ -299,6 +300,34 @@ class FulfillmentManagerTests(BaseTest):
         # print(dict_val)
         self.assertEqual(dict_val['speech'], payload_data['result']['fulfillment']['speech'])
 
+
+    def test_should_redirect_to_action_view_person_info_for_action_view_person_location_info(self):
+        l1 = Location(latitude=22.32434, longitude=86.4324, name="New user loc1221")
+        self.test_db.session.add(l1)
+        self.test_db.session.commit()
+
+        u1 = User(first_name='User22', last_name='Last32', username='uname39', password='pas3232', location_id=l1.id)
+        self.test_db.session.add(u1)
+        self.test_db.session.commit()
+        payload_data = {
+            'result': {
+                'parameters': {
+                    'office-user': 'User22'
+                },
+                'fulfillment': {
+                    'speech': 'Some message for view-person-info-request!'
+                },
+                'contexts': [],
+                'action': 'view-person-location-request'
+            }
+        }
+        result = self.app.post('/api/ai/fulfillment', content_type='application/json', data=json.dumps(payload_data))
+        dict_val = json.loads(result.data)
+        self.assertEqual(result.status_code, 200)
+        # print(dict_val)
+        self.assertEqual(dict_val['speech'], 'User: User22 Last32 is located at New user loc1221')
+        self.assertEqual(dict_val['parameters']['location']['name'], l1.name)
+        self.assertEqual(dict_val['parameters']['location']['latitude'], l1.latitude)
 
 
 if __name__ == '__main__':
