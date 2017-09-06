@@ -407,5 +407,78 @@ class FulfillmentManagerTests(BaseTest):
         self.assertEqual(dict_val['speech'], payload_data['result']['fulfillment']['speech'])
 
 
+
+    def test_should_return_processed_data_for_valid_data_with_food_type_for_announcements(self):
+        a1 = Announcement(title='Announcement12meetings', description='some Announcement related to meetings', category='meetings')
+        a2 = Announcement(title='Announcement24food', description='some Announcement related to food', category='food')
+
+        self.test_db.session.add(a1)
+        self.test_db.session.add(a2)
+        self.test_db.session.commit()
+
+        payload_data = {
+            'result': {
+                'parameters': {
+                    'event-type': 'food'
+                },
+                'fulfillment': {
+                    'speech': 'Some message for view-office-announcements!'
+                },
+                'contexts': [],
+                'action': 'view-office-announcements'
+            }
+        }
+        result = self.app.post('/api/ai/fulfillment', content_type='application/json', data=json.dumps(payload_data))
+        dict_val = json.loads(result.data)
+        self.assertEqual(result.status_code, 200)
+        # print(dict_val)
+        self.assertEqual(dict_val['speech'], 'Announcement24food')
+
+    def test_should_return_processed_data_for_valid_data_with_non_food_type_for_announcements(self):
+        a1 = Announcement(title='Announcement12meetings', description='some Announcement related to meetings', category='meetings')
+        a2 = Announcement(title='Announcement24food', description='some Announcement related to food', category='food')
+
+        self.test_db.session.add(a1)
+        self.test_db.session.add(a2)
+        self.test_db.session.commit()
+
+        payload_data = {
+            'result': {
+                'parameters': {
+                    'event-type': 'celebrations'
+                },
+                'fulfillment': {
+                    'speech': 'Some message for view-office-announcements!'
+                },
+                'contexts': [],
+                'action': 'view-office-announcements'
+            }
+        }
+        result = self.app.post('/api/ai/fulfillment', content_type='application/json', data=json.dumps(payload_data))
+        dict_val = json.loads(result.data)
+        self.assertEqual(result.status_code, 200)
+        # print(dict_val)
+        self.assertEqual(dict_val['speech'], 'Announcement12meetings, Announcement24food')
+
+
+    def test_should_not_processed_data_for_valid_data_with_no_type_for_announcements(self):
+        payload_data = {
+            'result': {
+                'parameters': {
+                    'some-param': 'some-value'
+                },
+                'fulfillment': {
+                    'speech': 'Some message for view-office-announcements!'
+                },
+                'contexts': [],
+                'action': 'view-office-announcements'
+            }
+        }
+        result = self.app.post('/api/ai/fulfillment', content_type='application/json', data=json.dumps(payload_data))
+        dict_val = json.loads(result.data)
+        self.assertEqual(result.status_code, 200)
+        # print(dict_val)
+        self.assertEqual(dict_val['speech'], payload_data['result']['fulfillment']['speech'])
+
 if __name__ == '__main__':
     unittest.main()

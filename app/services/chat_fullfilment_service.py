@@ -26,13 +26,12 @@ def process_and_fullfill_chat_request(input_payload):
             elif action == 'view-meetings-request':
                 new_response, parameters = process_view_meeting_request(parameters, resp, input_json)
             elif action == 'view-person-info-request':
+                # this also covers the navigate-to-person-location-request type
                 new_response, parameters = process_get_person_info_request(parameters, resp)
             elif action == 'view-person-location-request':
                 new_response, parameters = process_get_person_info_request(parameters, resp)
             elif action == 'route-to-location-request':
                 new_response, parameters = process_direction_to_given_location(parameters, resp)
-            elif action == 'route-to-person-location-request':
-                new_response, parameters = process_direction_to_given_person_location(parameters, resp)
             elif action == 'view-office-announcements':
                 new_response, parameters = process_fetch_office_announcements(parameters, resp)
             resp['speech'] = new_response
@@ -101,15 +100,20 @@ def process_direction_to_given_location(parameters, payload):
                 parameters['location'] = location.to_dict()
             return speech, parameters
     return payload['speech'], parameters
-    return payload['speech'], parameters
-
-def process_direction_to_given_person_location(parameters, payload):
-    # bring logic to validate and fetch location info
-    return payload['speech'], parameters
 
 def process_fetch_office_announcements(parameters, payload):
     # bring logic to validate and fetch announcements
-    return payload['speech'], parameters
+    e_type = parameters.get('event-type', None)
+    response_string = payload['speech']
+    announcements = []
+    if e_type != 'food':
+        # get food related announcements
+        announcements = Announcement.query.all()
+    else:
+        announcements = Announcement.query.filter_by(category=e_type).all()
+    if len(announcements) > 0:
+        response_string = ", ".join([a.title for a in announcements])
+    return response_string, parameters
 
 def process_get_person_info_request(parameters, payload):
     # fetch info about the given person
