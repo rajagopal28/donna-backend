@@ -91,6 +91,16 @@ def process_view_meeting_request(parameters, payload, input_json):
 
 def process_direction_to_given_location(parameters, payload):
     # bring logic to validate and fetch location info
+    name = parameters.get('campus-location', None)
+    if name:
+        location = Location.query.filter_by(name=name).first()
+        if location:
+            speech = 'Location: %r with co-ordinates(%r, %r)'%(location.name, str(location.latitude), str(location.longitude))
+            if location.campus:
+                speech += ' is located at Campus: %r'%(location.campus.name)
+                parameters['location'] = location.to_dict()
+            return speech, parameters
+    return payload['speech'], parameters
     return payload['speech'], parameters
 
 def process_direction_to_given_person_location(parameters, payload):
