@@ -231,5 +231,24 @@ class UserManagerTests(BaseTest):
         self.assertEqual(result.status_code, 404)
         self.assertEqual(dict_val['success'], False)
         self.assertEqual(dict_val['message'], 'Requested Record Not Available!')
+
+    def test_succeed_deleting_user_with_valid_id(self):
+        new_user = User(first_name='User2', last_name='Last2', username='uname2', password='pass2')
+        new_user.save()
+        result = self.app.delete('/api/users/%r'%(new_user.id))
+        dict_val = json.loads(result.data)
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(dict_val['success'], True)
+        self.assertEqual(dict_val['item']['firstName'], new_user.first_name)
+        self.assertEqual(dict_val['item']['username'], new_user.username)
+        users = User.query.all()
+        self.assertEqual(len(users), 0)
+
+    def test_fail_to_delete_user_with_invalid_id(self):
+        result = self.app.delete('/api/users/12')
+        dict_val = json.loads(result.data)
+        self.assertEqual(result.status_code, 404)
+        self.assertEqual(dict_val['success'], False)
+        self.assertEqual(dict_val['message'], 'Requested Record Not Available!')
 if __name__ == '__main__':
     unittest.main()

@@ -16,11 +16,20 @@ def fetch_all_users(is_plain_dict):
     return [user.to_plain_dict() if is_plain_dict else user.to_dict() for user in users]
 
 def fetch_user_with(id=None):
+    return find_or_delete_user_with(id=id)
+
+def find_or_delete_user_with(id=None, should_delete=False):
     user = User.query.filter_by(id=id).first()
     if user:
+        if should_delete:
+            db.session.delete(user)
+            db.session.commit()
         return jsonify(item=user.to_dict(), success=True), 200
     else:
         return jsonify(message='Requested Record Not Available!', success=False), 404
+
+def delete_user_with(id=None):
+    return find_or_delete_user_with(id=id, should_delete=True)
 
 def validate_input_and_authenticate(form):
     uname = form.get('username', None)

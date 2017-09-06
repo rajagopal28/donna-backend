@@ -1,7 +1,8 @@
 from flask import jsonify, request,  Response, json
 from app import myapp
 
-from app.services.user_services import validate_and_add_user, fetch_all_users, validate_input_and_authenticate, validate_and_upload_users,fetch_user_with
+from app.services.user_services import validate_and_add_user, fetch_all_users, delete_user_with, fetch_user_with
+from app.services.user_services import validate_input_and_authenticate, validate_and_upload_users
 
 from app.services.chat_fullfilment_service import process_and_fullfill_chat_request
 
@@ -13,9 +14,12 @@ def users():
         response = fetch_all_users(is_plain_dict=False)
         return jsonify(items=response, success=True)
 
-@myapp.route('/api/users/<user_id>', methods=['GET'])
+@myapp.route('/api/users/<user_id>', methods=['GET', 'DELETE'])
 def user_with(user_id):
-    return fetch_user_with(id=user_id)
+    if request.method == 'DELETE':
+        return delete_user_with(id=user_id)
+    else:
+        return fetch_user_with(id=user_id)
 
 
 @myapp.route('/api/users/login', methods=['POST'])
