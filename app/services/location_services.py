@@ -29,19 +29,39 @@ def fetch_all_campus():
     return [campus.to_dict() for campus in campuses]
 
 def fetch_location_with(id=None):
+    return find_or_delete_location_with(id=id)
+
+def delete_location_with(id=None):
+    return find_or_delete_location_with(id=id, should_delete=True)
+
+def delete_location_with(id=None):
+    return find_or_delete_location_with(id=id, should_delete=True)
+
+def find_or_delete_location_with(id=None, should_delete=False):
     location = Location.query.filter_by(id=id).first()
     if location:
+        if should_delete:
+            db.session.delete(location)
+            db.session.commit()
         return jsonify(item=location.to_dict(), success=True), 200
     else:
         return jsonify(message='Requested Record Not Available!', success=False), 404
 
 def fetch_campus_with(id=None):
+    return find_or_delete_campus_with(id=id)
+
+def delete_campus_with(id=None):
+    return find_or_delete_campus_with(id=id)
+
+def find_or_delete_campus_with(id=None, should_delete=False):
     campus = Campus.query.filter_by(id=id).first()
     if campus:
+        if should_delete:
+            db.session.delete(campus)
+            db.session.commit()
         return jsonify(item=campus.to_dict(), success=True), 200
     else:
         return jsonify(message='Requested Record Not Available!', success=False), 404
-
 
 def validate_and_upload_locations(ustr, reset):
     locations = literal_eval(ustr.decode().replace("'", '"'))

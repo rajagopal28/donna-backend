@@ -1,7 +1,9 @@
 from flask import jsonify, request,  Response, json
 
 from app import myapp
-from app.services.location_services import validate_and_add_location, fetch_all_locations, validate_and_add_campus, fetch_all_campus, validate_and_upload_locations, validate_and_upload_campus, fetch_location_with, fetch_campus_with
+from app.services.location_services import validate_and_add_location, fetch_all_locations, validate_and_upload_locations, fetch_location_with, delete_location_with
+from app.services.location_services import validate_and_add_campus, fetch_all_campus, validate_and_upload_campus, fetch_campus_with, delete_campus_with
+
 
 @myapp.route('/api/locations', methods = ['GET', 'POST'])
 def locations():
@@ -10,13 +12,19 @@ def locations():
     else:
         return jsonify(success=True, items=fetch_all_locations(is_plain_dict=False))
 
-@myapp.route('/api/locations/<location_id>', methods = ['GET'])
+@myapp.route('/api/locations/<location_id>', methods = ['GET', 'DELETE'])
 def locations_with(location_id):
-    return fetch_location_with(id=location_id)
+    if request.method == 'DELETE':
+        return delete_location_with(id=location_id)
+    else:
+        return fetch_location_with(id=location_id)
 
-@myapp.route('/api/campus/<campus_id>', methods = ['GET'])
+@myapp.route('/api/campus/<campus_id>', methods = ['GET', 'DELETE'])
 def campus_with(campus_id):
-    return fetch_campus_with(id=campus_id)
+    if request.method == 'DELETE':
+        return delete_campus_with(id=campus_id)
+    else:
+        return fetch_campus_with(id=campus_id)
 
 @myapp.route('/api/campus', methods = ['GET', 'POST'])
 def campus():

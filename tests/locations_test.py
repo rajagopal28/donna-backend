@@ -225,5 +225,39 @@ class LocationManagerTests(BaseTest):
         self.assertEqual(result.status_code, 404)
         self.assertEqual(dict_val['success'], False)
         self.assertEqual(dict_val['message'], 'Requested Record Not Available!')
+
+    def test_delete_location_with_valid_id(self):
+        new_loc = Location(name='loc7',latitude=62.64654, longitude=63.54465)
+        new_loc.save()
+        result = self.app.delete('/api/locations/%r'%(new_loc.id))
+        dict_val = json.loads(result.data)
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(dict_val['success'], True)
+        self.assertEqual(dict_val['item']['name'], new_loc.name)
+        self.assertEqual(dict_val['item']['latitude'], new_loc.latitude)
+
+    def test_not_delete_location_with_invalid_id(self):
+        result = self.app.delete('/api/locations/12')
+        dict_val = json.loads(result.data)
+        self.assertEqual(result.status_code, 404)
+        self.assertEqual(dict_val['success'], False)
+        self.assertEqual(dict_val['message'], 'Requested Record Not Available!')
+
+    def test_delete_campus_with_valid_id(self):
+        new_loc = Campus(name='Camp7',latitude=72.64654, longitude=33.54465)
+        new_loc.save()
+        result = self.app.delete('/api/campus/%r'%(new_loc.id))
+        dict_val = json.loads(result.data)
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(dict_val['success'], True)
+        self.assertEqual(dict_val['item']['name'], new_loc.name)
+        self.assertEqual(dict_val['item']['latitude'], new_loc.latitude)
+
+    def test_not_delete_campus_with_invalid_id(self):
+        result = self.app.delete('/api/campus/15')
+        dict_val = json.loads(result.data)
+        self.assertEqual(result.status_code, 404)
+        self.assertEqual(dict_val['success'], False)
+        self.assertEqual(dict_val['message'], 'Requested Record Not Available!')
 if __name__ == '__main__':
     unittest.main()
