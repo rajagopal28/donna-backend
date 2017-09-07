@@ -274,6 +274,8 @@ class LocationManagerTests(BaseTest):
         self.assertEqual(dict_val['success'], True)
         self.assertEqual(dict_val['item']['name'], new_loc.name)
         self.assertEqual(dict_val['item']['latitude'], new_loc.latitude)
+        campus = Campus.query.all()
+        self.assertEqual(len(campus), 0)
 
     def test_not_delete_campus_with_invalid_id(self):
         result = self.app.delete('/api/campus/15')

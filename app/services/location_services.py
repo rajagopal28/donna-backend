@@ -56,7 +56,7 @@ def fetch_campus_with(id=None):
     return find_or_delete_campus_with(id=id)
 
 def delete_campus_with(id=None):
-    return find_or_delete_campus_with(id=id)
+    return find_or_delete_campus_with(id=id, should_delete=True)
 
 def find_or_delete_campus_with(id=None, should_delete=False):
     campus = Campus.query.filter_by(id=id).first()
