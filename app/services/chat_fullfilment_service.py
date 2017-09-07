@@ -30,8 +30,10 @@ def process_and_fullfill_chat_request(input_payload):
                 new_response, parameters = process_get_person_info_request(parameters, resp)
             elif action == 'view-person-location-request':
                 new_response, parameters = process_get_person_info_request(parameters, resp)
+            elif action == 'view-location-info-request':
+                new_response, parameters = process_get_location_info_request(parameters, resp)
             elif action == 'route-to-location-request':
-                new_response, parameters = process_direction_to_given_location(parameters, resp)
+                new_response, parameters = process_direction_to_given_location(parameters, resp, input_json)
             elif action == 'view-office-announcements':
                 new_response, parameters = process_fetch_office_announcements(parameters, resp)
             resp['speech'] = new_response
@@ -88,7 +90,31 @@ def process_view_meeting_request(parameters, payload, input_json):
     event_list = ', '.join([(e.title+' From: '+dstr(e.event_start)+' Till: '+dstr(e.event_end)) for e in events])
     return event_list, parameters
 
-def process_direction_to_given_location(parameters, payload):
+def process_direction_to_given_location(parameters, payload, input_json):
+    name = parameters.get('campus-location', None)
+    authenticated, token = validate_auth_context(input_json)
+    if authenticated and name:
+        user = User.query.filter_by(username=token).first()
+        location = Location.query.filter_by(name=name).first()
+        if user and location and user.location:
+            speech = 'Taking you to Location: %r with co-ordinates(%r, %r)'%(location.name, str(location.latitude), str(location.longitude))
+            if  location.campus and user.location.campus and user.location.campus.id == location.campus.id:
+                speech += ' is located at Campus: %r'%(location.campus.name)
+            else:
+                speech='You are not in the same campus to View Routes!'
+                parameters['noRoute'] = 'true'
+            parameters['fromLocation'] = user.location.to_dict()
+            parameters['toLocation'] = location.to_dict()
+            return speech, parameters
+        elif not user:
+            return 'Invalid User Token!', parameters
+        elif not location:
+            return 'Not a valid Location', parameters
+        else:
+            return 'User has no location to route to!', parameters
+    return payload['speech'], parameters
+
+def process_get_location_info_request(parameters, payload):
     # bring logic to validate and fetch location info
     name = parameters.get('campus-location', None)
     if name:

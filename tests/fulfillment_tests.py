@@ -333,7 +333,7 @@ class FulfillmentManagerTests(BaseTest):
         self.assertEqual(dict_val['parameters']['location']['name'], l1.name)
         self.assertEqual(dict_val['parameters']['location']['latitude'], l1.latitude)
 
-    def test_should_return_processed_data_for_valid_data_for_location_no_campus_in_action_route_to_location_info(self):
+    def test_should_return_processed_data_for_valid_data_for_location_no_campus_in_action_view_location_info(self):
         l1 = Location(latitude=12.32434, longitude=56.4324, name="loc123")
         self.test_db.session.add(l1)
         self.test_db.session.commit()
@@ -344,10 +344,10 @@ class FulfillmentManagerTests(BaseTest):
                     'campus-location': 'loc123'
                 },
                 'fulfillment': {
-                    'speech': 'Some message for route-to-location-request!'
+                    'speech': 'Some message for view-location-info-request!'
                 },
                 'contexts': [],
-                'action': 'route-to-location-request'
+                'action': 'view-location-info-request'
             }
         }
         result = self.app.post('/api/ai/fulfillment', content_type='application/json', data=json.dumps(payload_data))
@@ -358,7 +358,7 @@ class FulfillmentManagerTests(BaseTest):
         self.assertEqual(dict_val['speech'], speech_resp)
 
 
-    def test_should_return_processed_data_for_valid_data_for_location_and_campus_in_action_route_to_location_info(self):
+    def test_should_return_processed_data_for_valid_data_for_location_and_campus_in_action_view_location_info(self):
         c1 = Campus(latitude=12.32434, longitude=56.4324, name='Some Campus1')
         self.test_db.session.add(c1)
         self.test_db.session.commit()
@@ -375,10 +375,10 @@ class FulfillmentManagerTests(BaseTest):
                     'campus-location': 'loc332'
                 },
                 'fulfillment': {
-                    'speech': 'Some message for route-to-location-request!'
+                    'speech': 'Some message for view-location-info-request!'
                 },
                 'contexts': [],
-                'action': 'route-to-location-request'
+                'action': 'view-location-info-request'
             }
         }
         result = self.app.post('/api/ai/fulfillment', content_type='application/json', data=json.dumps(payload_data))
@@ -391,17 +391,17 @@ class FulfillmentManagerTests(BaseTest):
         self.assertEqual(dict_val['parameters']['location']['latitude'], l1.latitude)
 
 
-    def test_should_not_processed_data_for_invalid_data_for_route_to_location_info(self):
+    def test_should_not_processed_data_for_invalid_data_for_view_location_info(self):
         payload_data = {
             'result': {
                 'parameters': {
                     'some-param': 'vv121'
                 },
                 'fulfillment': {
-                    'speech': 'Some message for route-to-location-request!'
+                    'speech': 'Some message for view-location-info-request!'
                 },
                 'contexts': [],
-                'action': 'route-to-location-request'
+                'action': 'view-location-info-request'
             }
         }
         result = self.app.post('/api/ai/fulfillment', content_type='application/json', data=json.dumps(payload_data))
@@ -409,7 +409,6 @@ class FulfillmentManagerTests(BaseTest):
         self.assertEqual(result.status_code, 200)
         # print(dict_val)
         self.assertEqual(dict_val['speech'], payload_data['result']['fulfillment']['speech'])
-
 
 
     def test_should_return_processed_data_for_valid_data_with_food_type_for_announcements(self):
@@ -476,6 +475,228 @@ class FulfillmentManagerTests(BaseTest):
                 },
                 'contexts': [],
                 'action': 'view-office-announcements'
+            }
+        }
+        result = self.app.post('/api/ai/fulfillment', content_type='application/json', data=json.dumps(payload_data))
+        dict_val = json.loads(result.data)
+        self.assertEqual(result.status_code, 200)
+        # print(dict_val)
+        self.assertEqual(dict_val['speech'], payload_data['result']['fulfillment']['speech'])
+
+
+    def test_should_return_processed_data_for_valid_data_for_location_and_campus_in_action_route_to_location_info(self):
+        c1 = Campus(latitude=12.32434, longitude=56.4324, name='Some Campus1')
+        self.test_db.session.add(c1)
+        self.test_db.session.commit()
+
+        c1_id = c1.id
+
+        l1 = Location(latitude=12.32434, longitude=56.4324, name="loc332", campus_id=c1_id)
+        l2 = Location(latitude=22.32434, longitude=95.4324, name="loc255", campus_id=c1_id)
+        self.test_db.session.add(l1)
+        self.test_db.session.add(l2)
+        self.test_db.session.commit()
+
+        l1_id = l1.id
+        l2_id = l2.id
+
+        u1 = User(first_name='User22', last_name='Last32', username='uname39', password='pas3232', location_id=l1_id)
+        self.test_db.session.add(u1)
+        self.test_db.session.commit()
+
+        payload_data = {
+            'result': {
+                'parameters': {
+                    'campus-location': 'loc255'
+                },
+                'fulfillment': {
+                    'speech': 'Some message for route-to-location-request!'
+                },
+                'contexts': [{
+                    'name' : 'auth',
+                    'parameters' : {
+                        'token' : 'uname39'
+                    }
+                }],
+                'action': 'route-to-location-request'
+            }
+        }
+        result = self.app.post('/api/ai/fulfillment', content_type='application/json', data=json.dumps(payload_data))
+        dict_val = json.loads(result.data)
+        self.assertEqual(result.status_code, 200)
+        # print(dict_val)
+        str_resp = 'Taking you to Location: %r with co-ordinates(%r, %r) is located at Campus: %r'%('loc255', '22.32434', '95.4324', 'Some Campus1')
+        self.assertEqual(dict_val['speech'], str_resp)
+        self.assertEqual(dict_val['parameters']['fromLocation']['name'], 'loc332')
+        self.assertEqual(dict_val['parameters']['fromLocation']['latitude'], 12.32434)
+        self.assertEqual(dict_val['parameters']['toLocation']['name'], 'loc255')
+        self.assertEqual(dict_val['parameters']['toLocation']['longitude'], 95.4324)
+
+    def test_should_return_processed_data_for_valid_data_for_location_and_campus_diff_campus_in_action_route_to_location_info(self):
+        c1 = Campus(latitude=12.32434, longitude=56.4324, name='Some Campus1')
+        self.test_db.session.add(c1)
+        self.test_db.session.commit()
+
+        c1_id = c1.id
+
+        l1 = Location(latitude=12.32434, longitude=56.4324, name="loc332", campus_id=c1_id)
+        l2 = Location(latitude=22.32434, longitude=95.4324, name="loc255")
+        self.test_db.session.add(l1)
+        self.test_db.session.add(l2)
+        self.test_db.session.commit()
+
+        l1_id = l1.id
+        l2_id = l2.id
+
+        u1 = User(first_name='User22', last_name='Last32', username='uname39', password='pas3232', location_id=l1_id)
+        self.test_db.session.add(u1)
+        self.test_db.session.commit()
+
+        payload_data = {
+            'result': {
+                'parameters': {
+                    'campus-location': 'loc255'
+                },
+                'fulfillment': {
+                    'speech': 'Some message for route-to-location-request!'
+                },
+                'contexts': [{
+                    'name' : 'auth',
+                    'parameters' : {
+                        'token' : 'uname39'
+                    }
+                }],
+                'action': 'route-to-location-request'
+            }
+        }
+        result = self.app.post('/api/ai/fulfillment', content_type='application/json', data=json.dumps(payload_data))
+        dict_val = json.loads(result.data)
+        self.assertEqual(result.status_code, 200)
+        # print(dict_val)
+        str_resp = 'You are not in the same campus to View Routes!'
+        self.assertEqual(dict_val['speech'], str_resp)
+        self.assertEqual(dict_val['parameters']['fromLocation']['name'], 'loc332')
+        self.assertEqual(dict_val['parameters']['fromLocation']['latitude'], 12.32434)
+        self.assertEqual(dict_val['parameters']['toLocation']['name'], 'loc255')
+        self.assertEqual(dict_val['parameters']['toLocation']['longitude'], 95.4324)
+        self.assertEqual(dict_val['parameters']['noRoute'], 'true')
+
+    def test_should_return_unprocessed_data_for_valid_data_for_location_and_no_user_diff_campus_in_action_route_to_location_info(self):
+        c1 = Campus(latitude=12.32434, longitude=56.4324, name='Some Campus1')
+        self.test_db.session.add(c1)
+        self.test_db.session.commit()
+
+        c1_id = c1.id
+
+        l1 = Location(latitude=12.32434, longitude=56.4324, name="loc332", campus_id=c1_id)
+        self.test_db.session.add(l1)
+        self.test_db.session.commit()
+
+        payload_data = {
+            'result': {
+                'parameters': {
+                    'campus-location': 'loc255'
+                },
+                'fulfillment': {
+                    'speech': 'Some message for route-to-location-request!'
+                },
+                'contexts': [{
+                    'name' : 'auth',
+                    'parameters' : {
+                        'token' : 'uname39'
+                    }
+                }],
+                'action': 'route-to-location-request'
+            }
+        }
+        result = self.app.post('/api/ai/fulfillment', content_type='application/json', data=json.dumps(payload_data))
+        dict_val = json.loads(result.data)
+        self.assertEqual(result.status_code, 200)
+        # print(dict_val)
+        str_resp = 'Invalid User Token!'
+        self.assertEqual(dict_val['speech'], str_resp)
+
+    def test_should_return_not_process_data_for_invalid_data_for_no_location_in_action_route_to_location_info(self):
+
+        l1 = Location(latitude=12.32434, longitude=56.4324, name="loc332")
+        self.test_db.session.add(l1)
+        self.test_db.session.commit()
+
+        l1_id = l1.id
+        u1 = User(first_name='User22', last_name='Last32', username='uname39', password='pas3232', location_id=l1_id)
+        self.test_db.session.add(u1)
+        self.test_db.session.commit()
+
+        payload_data = {
+            'result': {
+                'parameters': {
+                    'campus-location': 'loc255'
+                },
+                'fulfillment': {
+                    'speech': 'Some message for route-to-location-request!'
+                },
+                'contexts': [{
+                    'name' : 'auth',
+                    'parameters' : {
+                        'token' : 'uname39'
+                    }
+                }],
+                'action': 'route-to-location-request'
+            }
+        }
+        result = self.app.post('/api/ai/fulfillment', content_type='application/json', data=json.dumps(payload_data))
+        dict_val = json.loads(result.data)
+        self.assertEqual(result.status_code, 200)
+        # print(dict_val)
+        str_resp = 'Not a valid Location'
+        self.assertEqual(dict_val['speech'], str_resp)
+
+
+    def test_should_return_not_process_data_for_invalid_data_for_no_location_in_action_route_to_location_info(self):
+
+        l1 = Location(latitude=12.32434, longitude=56.4324, name="loc332")
+        self.test_db.session.add(l1)
+        self.test_db.session.commit()
+
+        u1 = User(first_name='User22', last_name='Last32', username='uname39', password='pas3232')
+        self.test_db.session.add(u1)
+        self.test_db.session.commit()
+
+        payload_data = {
+            'result': {
+                'parameters': {
+                    'campus-location': 'loc332'
+                },
+                'fulfillment': {
+                    'speech': 'Some message for route-to-location-request!'
+                },
+                'contexts': [{
+                    'name' : 'auth',
+                    'parameters' : {
+                        'token' : 'uname39'
+                    }
+                }],
+                'action': 'route-to-location-request'
+            }
+        }
+        result = self.app.post('/api/ai/fulfillment', content_type='application/json', data=json.dumps(payload_data))
+        dict_val = json.loads(result.data)
+        self.assertEqual(result.status_code, 200)
+        # print(dict_val)
+        str_resp = 'User has no location to route to!'
+        self.assertEqual(dict_val['speech'], str_resp)
+
+    def test_should_not_processed_data_for_invalid_data_for_route_to_location_info(self):
+        payload_data = {
+            'result': {
+                'parameters': {
+                    'some-param': 'vv121'
+                },
+                'fulfillment': {
+                    'speech': 'Some message for route-to-location-request!'
+                },
+                'contexts': [],
+                'action': 'route-to-location-request'
             }
         }
         result = self.app.post('/api/ai/fulfillment', content_type='application/json', data=json.dumps(payload_data))
