@@ -63,6 +63,28 @@ class LocationManagerTests(BaseTest):
         self.assertEqual(dict_val["items"][0]["campus"]["name"], c1.name)
         self.assertEqual(dict_val["success"], True)
 
+    def test_all_locations_of_given_campus_for_response_with_inserted_data(self):
+        c1 = Campus(latitude=12.32434, longitude=56.4324, name='Some Campus1')
+        self.test_db.session.add(c1)
+        self.test_db.session.commit()
+
+        i_c1 = Campus.query.filter_by(latitude=c1.latitude, longitude=c1.longitude, name=c1.name).first()
+
+        l1 = Location(latitude=12.32434, longitude=56.4324, name='location 1', campus_id=i_c1.id)
+        l2 = Location(latitude=22.32434, longitude=46.4324, name='location 2')
+        self.test_db.session.add(l1)
+        self.test_db.session.commit()
+        result = self.app.get('/api/locations?campusId'+str(i_c1.id))
+        dict_val = json.loads(result.data)
+
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(len(dict_val["items"]), 1)
+        self.assertEqual(dict_val["items"][0]["latitude"], l1.latitude)
+        self.assertEqual(dict_val["items"][0]["name"], l1.name)
+        self.assertIsNotNone(dict_val["items"][0]["campus"])
+        self.assertEqual(dict_val["items"][0]["campus"]["name"], c1.name)
+        self.assertEqual(dict_val["success"], True)
+
     def test_add_location_should_fail_invalid_data(self):
         camp = Campus(name='Campus5', latitude=12.454, longitude=43.23234)
         camp.save()

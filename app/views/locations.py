@@ -10,7 +10,7 @@ def locations():
     if request.method == 'POST':
         return validate_and_add_location(request.form)
     else:
-        return jsonify(success=True, items=fetch_all_locations(is_plain_dict=False))
+        return jsonify(success=True, items=fetch_all_locations(is_plain_dict=False, args=request.args))
 
 @myapp.route('/api/locations/<location_id>', methods = ['GET', 'DELETE'])
 def locations_with(location_id):

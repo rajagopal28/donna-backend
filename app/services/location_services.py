@@ -12,8 +12,13 @@ def validate_and_add_location(form):
         return jsonify(success=False, message='Missing required fields!'), 400
 
 
-def fetch_all_locations(is_plain_dict):
-    locations = Location.query.all()
+def fetch_all_locations(is_plain_dict=False, args=None):
+    locations = []
+    if args and args.get('campusId', None):
+        campus_id = args.get('campusId')
+        locations = Location.query.filter_by(campus_id=campus_id).all()
+    else:
+        locations = Location.query.all()
     return [loc.to_plain_dict() if is_plain_dict else loc.to_dict() for loc in locations]
 
 
