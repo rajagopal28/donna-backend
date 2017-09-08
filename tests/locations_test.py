@@ -138,7 +138,7 @@ class LocationManagerTests(BaseTest):
 
 
     def test_download_locations_through_endpoint(self):
-        new_loc = Location(name='loc2',latitude=62.64654, longitude=63.54465, campus_id = 0)
+        new_loc = Location(name='loc2',latitude=62.64654, longitude=63.54465, campus_id = 0, floor=1)
         new_loc.save()
         result = self.app.get('/api/locations/download')
         content = b''

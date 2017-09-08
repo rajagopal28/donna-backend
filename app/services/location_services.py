@@ -86,11 +86,12 @@ def validate_and_save_location(form, skip_campus):
     longitude = form.get('longitude', None)
     name = form.get('name', None)
     campus = form.get('campusId', None)
+    floor = form.get('floor', 1)
     if latitude and longitude and name :
         if (not skip_campus) and (not campus):
             return False, None
         else:
-            new_loc = Location(name=name, latitude=latitude, longitude=longitude, campus_id=campus)
+            new_loc = Location(name=name, latitude=latitude, longitude=longitude, campus_id=campus, floor=floor)
             new_loc.save()
             return True, new_loc
     return False, None
