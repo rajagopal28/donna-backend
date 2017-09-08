@@ -89,6 +89,57 @@ class UserManagerTests(BaseTest):
         self.assertIsNotNone(dict_val["items"][0]["location"]["campus"]["name"], c1.name)
         self.assertEqual(dict_val["success"], True)
 
+
+    def test_all_users_in_campus_with_location_with_campus_for_response_with_inserted_data(self):
+        c1 = Campus(latitude=12.32434, longitude=56.4324, name='Some Campus1')
+        self.test_db.session.add(c1)
+        self.test_db.session.commit()
+
+        i_c1 = Campus.query.filter_by(latitude=c1.latitude, longitude=c1.longitude, name=c1.name).first()
+
+        l1 = Location(latitude=12.32434, longitude=56.4324, campus_id=i_c1.id)
+        self.test_db.session.add(l1)
+        self.test_db.session.commit()
+
+        i_l1 = Location.query.filter_by(latitude=l1.latitude, longitude=l1.longitude).first()
+
+        u1 = User(first_name='user1', last_name='last1', username='uname1', password='password1', location_id=i_l1.id)
+        u2 = User(first_name='user2', last_name='last2', username='uname2', password='password2')
+        self.test_db.session.add(u1)
+        self.test_db.session.add(u2)
+        self.test_db.session.commit()
+        result = self.app.get('/api/users?campusId='+str(i_c1.id))
+        dict_val = json.loads(result.data)
+
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(len(dict_val["items"]), 1)
+        self.assertEqual(dict_val["items"][0]["firstName"], u1.first_name)
+        self.assertIsNotNone(dict_val["items"][0]["location"])
+        self.assertEqual(dict_val["items"][0]["location"]["latitude"], l1.latitude)
+        self.assertIsNotNone(dict_val["items"][0]["location"]["campus"])
+        self.assertIsNotNone(dict_val["items"][0]["location"]["campus"]["name"], c1.name)
+        self.assertEqual(dict_val["success"], True)
+
+
+    def test_no_users_in_campus_with_location_no_campus_for_response_with_inserted_data(self):
+        l1 = Location(latitude=12.32434, longitude=56.4324)
+        self.test_db.session.add(l1)
+        self.test_db.session.commit()
+
+        i_l1 = Location.query.filter_by(latitude=l1.latitude, longitude=l1.longitude).first()
+
+        u1 = User(first_name='user1', last_name='last1', username='uname1', password='password1', location_id=i_l1.id)
+        self.test_db.session.add(u1)
+        self.test_db.session.commit()
+        result = self.app.get('/api/users?campusId=1')
+        dict_val = json.loads(result.data)
+
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(len(dict_val["items"]), 0)
+        self.assertEqual(dict_val["success"], True)
+
+
+
     def test_add_user_should_fail_invalid_data(self):
         loc = Location(name='Loc4', latitude=12.454, longitude=43.23234)
         loc.save()

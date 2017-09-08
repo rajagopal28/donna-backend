@@ -11,7 +11,7 @@ def users():
     if request.method == 'POST':
         return validate_and_add_user(request.form)
     else:
-        response = fetch_all_users(is_plain_dict=False)
+        response = fetch_all_users(is_plain_dict=False, args=request.args)
         return jsonify(items=response, success=True)
 
 @myapp.route('/api/users/<user_id>', methods=['GET', 'DELETE'])
@@ -36,7 +36,7 @@ def upload_users():
 
 @myapp.route('/api/users/download', methods=['GET'])
 def download_users():
-    resp = fetch_all_users(is_plain_dict=True)
+    resp = fetch_all_users(is_plain_dict=True, args=request.args)
     return Response(
         str(resp),
         mimetype="application/json",

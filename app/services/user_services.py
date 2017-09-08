@@ -2,7 +2,7 @@ from flask import jsonify
 from ast import literal_eval
 
 from app import db
-from app.models.office import User
+from app.models.office import User, Location
 
 def validate_and_add_user(form):
     status, new_user = validate_and_save_user(form, skip_location=False)
@@ -11,8 +11,14 @@ def validate_and_add_user(form):
     else:
         return jsonify(success=False, message='Missing required fields!'), 400
 
-def fetch_all_users(is_plain_dict):
-    users = User.query.all()
+def fetch_all_users(is_plain_dict=False, args=None):
+    if args :
+        campus_id = args.get('campusId', None)
+        if campus_id:
+            locations = Location.query.filter_by(campus_id=campus_id).all()
+            users = User.query.filter(User.location_id.in_([l.id for l in locations])).all()
+    else:
+        users = User.query.all()
     return [user.to_plain_dict() if is_plain_dict else user.to_dict() for user in users]
 
 def fetch_user_with(id=None):
