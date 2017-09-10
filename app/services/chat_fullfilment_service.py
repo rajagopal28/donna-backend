@@ -41,7 +41,7 @@ def process_and_fullfill_chat_request(input_payload):
             resp['speech'] = new_response
             resp['displayText'] = new_response
 
-            resp['data'] = { 
+            resp['data'] = {
             "web" : {
                 "parameters" : parameters
             }}
@@ -188,7 +188,13 @@ def process_schedule_meeting(parameters, payload, input_json):
 def validate_input_fetch_data_and_add_event(event_date, participant_name, location_name, event_time, creator):
     owner = User.query.filter_by(username=creator).first()
     user = User.query.filter_by(first_name=participant_name).first()
-    location = Location.query.filter_by(name=location_name).first()
+    if location_name == 'your_location':
+        location = owner.location
+    else:
+        location = Location.query.filter_by(name=location_name).first()
+    if event_date == 'today':
+        now = datetime.today()
+        event_date = now.strftime('%Y-%m-%d')
     whole_date = event_date + ' ' + event_time
     start = datetime.strptime(whole_date, '%Y-%m-%d %H:%M:%S')
     end = (start + timedelta(minutes=30))
