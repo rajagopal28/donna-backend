@@ -112,6 +112,7 @@ class FulfillmentManagerTests(BaseTest):
         u1 = User(first_name='user2', last_name='last2', username='uname2', password='password2', location_id=l1.id)
         self.test_db.session.add(u1)
         self.test_db.session.commit()
+        u1_id = u1.id
 
         payload_data = {
             'result': {
@@ -141,6 +142,8 @@ class FulfillmentManagerTests(BaseTest):
         meetings = Event.query.all()
         self.assertEqual(len(meetings), 1)
         self.assertEqual(meetings[0].title, 'user2\'s meeting with user2 at loc1')
+        self.assertEqual(len(meetings[0].event_participants), 1)
+        self.assertEqual(meetings[0].event_participants[0].participant_id, u1_id)
 
 
     def test_should_return_processed_data_for_valid_and_data_input_in_action_schedule_meeting(self):
@@ -150,6 +153,8 @@ class FulfillmentManagerTests(BaseTest):
         self.test_db.session.add(u1)
         self.test_db.session.add(l1)
         self.test_db.session.commit()
+
+        u1_id = u1.id
 
         payload_data = {
             'result': {
@@ -179,6 +184,8 @@ class FulfillmentManagerTests(BaseTest):
         meetings = Event.query.all()
         self.assertEqual(len(meetings), 1)
         self.assertEqual(meetings[0].title, 'user2\'s meeting with user2 at loc1')
+        self.assertEqual(len(meetings[0].event_participants), 1)
+        self.assertEqual(meetings[0].event_participants[0].participant_id, u1_id)
 
 
     def test_should_process_meeting_for_valid_input_without_auth_in_action_schedule_meeting(self):

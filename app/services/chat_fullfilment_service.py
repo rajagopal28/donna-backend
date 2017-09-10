@@ -202,6 +202,12 @@ def validate_input_fetch_data_and_add_event(event_date, participant_name, locati
         title = owner.first_name + '\'s meeting with ' + user.first_name + ' at ' + location.name
         meeting = Event(title=title, description=title, event_start=start, event_end=end, location_id=location.id)
         meeting.save()
+        participants = [owner]
+        if owner.id != user.id:
+            participants.append(user)
+        for p in participants:
+            ep = EventParticipant(participant_id=p.id, event_id=meeting.id)
+            ep.save()
         return True
     return False
 
