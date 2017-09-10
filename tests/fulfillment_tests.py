@@ -281,6 +281,8 @@ class FulfillmentManagerTests(BaseTest):
         self.assertEqual(result.status_code, 200)
         # print(dict_val)
         self.assertEqual(dict_val['speech'], 'User: User22 Last32 is located at New user loc1111')
+        self.assertEqual(dict_val['data']['web']['parameters']['location']['name'], l1.name)
+        self.assertEqual(dict_val['data']['web']['parameters']['location']['latitude'], l1.latitude)
         self.assertEqual(dict_val['parameters']['location']['name'], l1.name)
         self.assertEqual(dict_val['parameters']['location']['latitude'], l1.latitude)
 
@@ -330,6 +332,8 @@ class FulfillmentManagerTests(BaseTest):
         self.assertEqual(result.status_code, 200)
         # print(dict_val)
         self.assertEqual(dict_val['speech'], 'User: User22 Last32 is located at New user loc1221')
+        self.assertEqual(dict_val['data']['web']['parameters']['location']['name'], l1.name)
+        self.assertEqual(dict_val['data']['web']['parameters']['location']['latitude'], l1.latitude)
         self.assertEqual(dict_val['parameters']['location']['name'], l1.name)
         self.assertEqual(dict_val['parameters']['location']['latitude'], l1.latitude)
 
@@ -387,6 +391,8 @@ class FulfillmentManagerTests(BaseTest):
         # print(dict_val)
         str_resp = 'Location: %r with co-ordinates(%r, %r) is located at Campus: %r'%(l1.name, str(l1.latitude), str(l1.longitude), c1.name)
         self.assertEqual(dict_val['speech'], str_resp)
+        self.assertEqual(dict_val['data']['web']['parameters']['location']['name'], l1.name)
+        self.assertEqual(dict_val['data']['web']['parameters']['location']['latitude'], l1.latitude)
         self.assertEqual(dict_val['parameters']['location']['name'], l1.name)
         self.assertEqual(dict_val['parameters']['location']['latitude'], l1.latitude)
 
@@ -527,6 +533,11 @@ class FulfillmentManagerTests(BaseTest):
         # print(dict_val)
         str_resp = 'Taking you to Location: %r with co-ordinates(%r, %r) is located at Campus: %r'%('loc255', '22.32434', '95.4324', 'Some Campus1')
         self.assertEqual(dict_val['speech'], str_resp)
+
+        self.assertEqual(dict_val['data']['web']['parameters']['fromLocation']['name'],'loc332')
+        self.assertEqual(dict_val['data']['web']['parameters']['fromLocation']['latitude'], 12.32434)
+        self.assertEqual(dict_val['data']['web']['parameters']['toLocation']['name'],'loc255')
+        self.assertEqual(dict_val['data']['web']['parameters']['toLocation']['longitude'], 95.4324)
         self.assertEqual(dict_val['parameters']['fromLocation']['name'], 'loc332')
         self.assertEqual(dict_val['parameters']['fromLocation']['latitude'], 12.32434)
         self.assertEqual(dict_val['parameters']['toLocation']['name'], 'loc255')
@@ -575,6 +586,10 @@ class FulfillmentManagerTests(BaseTest):
         # print(dict_val)
         str_resp = 'You are not in the same campus to View Routes!'
         self.assertEqual(dict_val['speech'], str_resp)
+        self.assertEqual(dict_val['data']['web']['parameters']['fromLocation']['name'],'loc332')
+        self.assertEqual(dict_val['data']['web']['parameters']['fromLocation']['latitude'], 12.32434)
+        self.assertEqual(dict_val['data']['web']['parameters']['toLocation']['name'],'loc255')
+        self.assertEqual(dict_val['data']['web']['parameters']['toLocation']['longitude'], 95.4324)
         self.assertEqual(dict_val['parameters']['fromLocation']['name'], 'loc332')
         self.assertEqual(dict_val['parameters']['fromLocation']['latitude'], 12.32434)
         self.assertEqual(dict_val['parameters']['toLocation']['name'], 'loc255')

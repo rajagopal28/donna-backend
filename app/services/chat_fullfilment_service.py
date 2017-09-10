@@ -40,6 +40,11 @@ def process_and_fullfill_chat_request(input_payload):
                 new_response, parameters = process_fetch_office_announcements(parameters, resp)
             resp['speech'] = new_response
             resp['displayText'] = new_response
+
+            resp['data'] = { 
+            "web" : {
+                "parameters" : parameters
+            }}
             resp['contextOut'] = context
             resp['parameters'] = parameters
             print('Parameters Post...')
