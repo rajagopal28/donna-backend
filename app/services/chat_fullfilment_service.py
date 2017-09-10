@@ -20,6 +20,8 @@ def process_and_fullfill_chat_request(input_payload):
         }
         if validate_payload_parameters(input_json):
             parameters = input_json['parameters']
+            print('Parameters Pre...')
+            print(parameters)
             # print(resp)
             if action == 'schedule-meeting-request':
                 new_response, parameters = process_schedule_meeting(parameters, resp, input_json)
@@ -40,6 +42,8 @@ def process_and_fullfill_chat_request(input_payload):
             resp['displayText'] = new_response
             resp['contextOut'] = context
             resp['parameters'] = parameters
+            print('Parameters Post...')
+            print(parameters)
         return json.dumps(resp)
     return json.dumps(input_payload)
 
