@@ -1,6 +1,9 @@
 # Donna Backend API server
 To bring in contextual references with the existing system at [Donna](http://github.com/rajagopal28/Donna)
 
+## Application Architecture
+![Architecture](https://file.ac/G5EImf07QBs/image00.png)
+
 ## Tech stack
 - python - Flask, SQLAlchemy
 - SQLite
