@@ -40,37 +40,37 @@ To bring in contextual references with the existing system at [Donna](http://git
 ## end points information
 ### Users
 - GET /api/users  - to list all active users
-- POST /api/users {firstName: .., lastName: .., username:.., password: .., locationId: ..} - to add a new user
-- POST /api/users/login {username:.., password: ..} - to add a authenticate and get user token
+- POST /api/users `` {firstName: .., lastName: .., username:.., password: .., locationId: ..}`` - to add a new user
+- POST /api/users/login ``{username:.., password: ..}`` - to add a authenticate and get user token
 - GET /api/users/:user-id - to get detail of given user-id
 - GET /api/users/download - to download as user info as .json file
-- POST /api/users/upload {users: FILE_STREAM(users.json)} - to upload users from .json file
+- POST /api/users/upload ``{users: FILE_STREAM(users.json)}`` - to upload users from .json file
 
 ### Location
 - GET /api/locations  - to list all locations
-- POST /api/locations {name:..., latitude:..., longitude:..., campusId:...} - to add a new locations
+- POST /api/locations ``{name:..., latitude:..., longitude:..., campusId:...}`` - to add a new locations
 - GET /api/locations/:location-id - to get detail of given location-id
 - GET /api/locations/download - to download as locations info as .json file
-- POST /api/locations/upload {locations: FILE_STREAM(locations.json)} - to upload locations from .json file
+- POST /api/locations/upload ``{locations: FILE_STREAM(locations.json)}`` - to upload locations from .json file
 
 ### Campus
 - GET /api/campus  - to list all campus
-- POST /api/campus {name:..., latitude:..., longitude:..., campusNumber:...} - to add a new campus
+- POST /api/campus ``{name:..., latitude:..., longitude:..., campusNumber:...}`` - to add a new campus
 - GET /api/campus/:campus-id - to get detail of given campus-id
 - GET /api/campus/download - to download as campus info as .json file
-- POST /api/campus/upload {campus: FILE_STREAM(campus.json)} - to upload campus from .json file
+- POST /api/campus/upload ``{campus: FILE_STREAM(campus.json)}`` - to upload campus from .json file
 
 ### Events
 - GET /api/events[?userId=<user-id>]  - to list all events[optional query param to get events of particular user]
-- POST /api/events {name:..., description:..., eventStart:..., eventEnd:..., eventType:..., eventParticipants:...} - to add a new event
+- POST /api/events ``{name:..., description:..., eventStart:..., eventEnd:..., eventType:..., eventParticipants:...}`` - to add a new event
 
 ### Event Participants
 - GET /api/events/:event-id  - to list of all event participants
-- POST /api/events/:event-id {participants:...} - to add a participants to a particular event
+- POST /api/events/:event-id ``{participants:...}`` - to add a participants to a particular event
 
 ### Announcements
 - GET /api/announcements  - to list all campus
-- POST /api/announcements {title:..., description:..., validFrom:..., validtill, category:...} - to add a new announcement
+- POST /api/announcements ``{title:..., description:..., validFrom:..., validtill, category:...}`` - to add a new announcement
 - GET /api/announcements/:announcement-id - to get detail of given announcement-id
 
 ### Chat Fulfillment
@@ -144,6 +144,7 @@ To bring in contextual references with the existing system at [Donna](http://git
         }
     }
 } ``
+
 Response format should be as follows as prescribed by API.ai documentation:
 `` {
 "speech": "Barack Hussein Obama II was the 44th and current President of the United States.",
