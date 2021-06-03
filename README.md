@@ -9,7 +9,7 @@ To bring in contextual references with the existing system at [Donna](http://git
 - SQLite
 
 ## Backend Schema
-![Schema](./images/image001.png)
+![Schema](./images/image01.png)
 
 ## Libraries used
 - Flask - application module to serve application with end points
