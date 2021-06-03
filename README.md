@@ -2,14 +2,14 @@
 To bring in contextual references with the existing system at [Donna](http://github.com/rajagopal28/Donna)
 
 ## Application Architecture
-![Architecture](https://file.ac/G5EImf07QBs/image00.png)
+![Architecture](./images/image00.png)
 
 ## Tech stack
 - python - Flask, SQLAlchemy
 - SQLite
 
 ## Backend Schema
-![Schema](https://file.ac/G5EImf07QBs/image001.png)
+![Schema](./images/image001.png)
 
 ## Libraries used
 - Flask - application module to serve application with end points
