@@ -164,3 +164,6 @@ Response format should be as follows as prescribed by API.ai documentation:
 - https://stackoverflow.com/a/17320579
 - https://goonan.io/testing-file-uploads-in-flask/
 - http://flask-cors.readthedocs.io/en/latest/#using-json-with-cors
+- Python upgrade jinja2 issue : https://stackoverflow.com/a/71647006
+- Flask_ext issue for SQLAlchemy import: https://stackoverflow.com/a/55024677
+- Another alchemy conflict issue : https://stackoverflow.com/a/73476925
