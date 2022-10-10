@@ -1,6 +1,7 @@
 import os
 from flask import Flask
-from flask.ext.sqlalchemy import SQLAlchemy
+# Use this import format
+from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 
 myapp = Flask(__name__)
